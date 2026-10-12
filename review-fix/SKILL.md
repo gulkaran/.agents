@@ -41,6 +41,10 @@ summarize rejected findings by why no fix is needed. Preserve all verdicts
 and evidence in `review.md`. **Wait for approval** of the plan; the
 human may drop, defer, or adjust items.
 
+Before waiting, commit the review verdicts and state log under the topic
+protocol. These vault checkpoints are separate from application fix commits
+and do not approve the proposed fixes.
+
 ### 3. Implement
 
 - One commit per fix, message referencing the finding
@@ -63,6 +67,8 @@ After pushing:
 
 Update `review.md` with all verdicts and outcomes. Log line in `_state.md`;
 phase → `done` when the human confirms nothing remains.
+Keep retained test results in `verification/` and commit the review outcomes,
+decisions, verification artifacts, and state together using the topic protocol.
 
 Reread `~/.agents/skills/_shared/style.md` immediately before the final handoff.
 Briefly explain what was fixed, whether verification passed, and anything

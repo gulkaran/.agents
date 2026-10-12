@@ -14,16 +14,18 @@ first. Resolve the destination before delegating:
   `<vault_path>/<project>/topics/<slug>/`, with the repo name as `<project>`
   unless specified otherwise. Create the topic and `.topic` marker according
   to the protocol, with phase `investigating`.
-- Save supporting research as `research-<subject>.md` in that folder. Reuse a
+- Save supporting research as `research/<subject>.md` in that folder. Reuse a
   matching note when continuing the same research; preserve unrelated notes
-  and the workflow's synthesized `research.md`.
+  and the workflow's synthesized `investigation.md`.
 - If the configured vault cannot be located or written, ask for the correct
   path or per-machine override. Do not fall back to repo docs or another
   convenient directory. Only an explicit user-specified destination overrides
   vault storage.
 
 Spin up a **background agent** to do the research, so you keep working while it
-reads. Pass it the research question and exact resolved output path.
+reads. Pass it the research question and exact resolved output path. The
+worker writes the note without committing; the coordinating agent owns the
+vault commit after reviewing the result.
 
 Its job:
 
@@ -35,4 +37,5 @@ Its job:
 After completion, append a research session log line to the topic's
 `_state.md`. Supporting research can run during any phase; preserve the
 existing phase and approvals. Research completion alone does not choose an
-approach or advance the workflow.
+approach or advance the workflow. Commit the note and state log together
+using the topic protocol, including meaningful updates to an existing note.

@@ -1,6 +1,6 @@
 ---
 name: investigate
-description: Interactive research phase for an idea or issue. Explores the codebase and relevant sources, reports tiered findings with credible approach options, and ends with the human choosing the approach. Writes research.md to the topic folder. Use when starting work on an idea or picking up an issue that isn't yet fully specified.
+description: Interactive investigation of an idea or issue. Explores the codebase and relevant sources, explains credible approach options, and ends with the human choosing the approach. Writes investigation.md to the topic folder. Use when starting work, revisiting an approach, or picking up an issue that isn't yet fully specified.
 disable-model-invocation: true
 ---
 
@@ -18,10 +18,11 @@ No production code changes in this phase.
 
 ### 1. Resolve the topic
 
-Follow the topic protocol: resolve or create the topic folder, write the
-`.topic` marker, set phase `investigating`, log the session. If the input is a
-tracker issue, fetch its full body and comments via the tracker recipes and
-link it in `_state.md`.
+Follow the topic protocol: resolve or create the topic folder and write the
+`.topic` marker. For new work set phase `investigating` and log the session;
+for an existing topic read its state first and use the reopening transition
+when revisiting an approach. If the input is a tracker issue, fetch its full
+body and comments via the tracker recipes and link it in `_state.md`.
 
 ### 2. Frame
 
@@ -86,12 +87,19 @@ approach.** Do not proceed on a recommendation alone.
 
 ### 8. Record
 
+Before a handoff or waiting for an approach choice, save the current findings
+and options in `investigation.md`, clearly marking the choice as pending.
+Put supporting source research in `research/<subject>.md` and link to it.
+Commit meaningful revisions using the shared topic protocol, including drafts.
+
 On the human's choice:
 
-- Write `research.md`: the human-facing explanation, complete findings and
+- Update `investigation.md`: the human-facing explanation, complete findings and
   approach reasoning, the chosen approach, product/business answers and their
   rationale, any remaining uncertainties, plus an appendix (evidence, paths,
   commands run).
 - Append the approach choice to `decisions.md` (decision + why).
 - Update `_state.md`: phase → `designing`, log line.
+- Commit the investigation, decisions, and state together. On a repeat
+  investigation, revise the same file and explain why the approach changed.
 - Tell the human the topic is ready for `design`.

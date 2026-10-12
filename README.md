@@ -25,6 +25,10 @@ questions along the way. See [VENDORED.md](VENDORED.md) for upstream credits.
 
 - **Context survives between sessions.** Research, designs, decisions, and
   reviews live together in a topic folder in my knowledge vault.
+- **Document history survives revisions.** Meaningful updates are committed
+  together in the vault. Investigation lives in `investigation.md`, supporting
+  notes in `research/`, and execution evidence in `verification/`. Failed
+  feasibility returns to investigation and invalidates the old design approval.
 - **Tests follow the intended behavior.** Failing tests are committed before
   implementation, and later test changes need a recorded explanation.
 - **Review respects the design.** Deliberate decisions stay visible, while
@@ -39,5 +43,8 @@ questions along the way. See [VENDORED.md](VENDORED.md) for upstream credits.
 Run `./install.sh` in Bash to symlink the skills into `~/.agents/skills`.
 Set the vault path and tracker in [_shared/config.md](_shared/config.md).
 For machine-specific settings, use `_shared/config.local.md` (gitignored).
+The vault must have its own initialized Git repository. Workflow skills commit
+local document checkpoints using [_shared/topic.md](_shared/topic.md); vault
+publishing remains separate from application pushes and PRs.
 
 Invoke a skill by name, for example: `Use $investigate to explore this idea.`

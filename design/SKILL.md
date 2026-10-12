@@ -19,9 +19,11 @@ retained as feasibility evidence rather than production implementation.
 
 ### 1. Resolve the topic
 
-Follow the topic protocol. Expect phase `designing` with `research.md`
-present. If there's no research (a small, well-specified task), say so and ask
-whether to proceed directly — the human's call, recorded in the log.
+Follow the topic protocol. Expect phase `designing` with `investigation.md`
+present. For a human-requested revision of an approved contract, first use the
+shared revision transition. If there's no investigation (a small, well-specified
+task), say so and ask whether to proceed directly; record the human's call in
+the log.
 
 ### 2. Prove feasibility
 
@@ -42,8 +44,11 @@ Record the assumption, how to rerun the spike, its result, and limitations
 alongside the files. Summarize the evidence in the design's appendix and link
 to the retained artifacts. Retain disproven experiments too. If nothing is
 genuinely risky, say so explicitly — don't perform feasibility theatre or create
-an empty folder. If the assumption is disproven, stop and return to the
-approach conversation.
+an empty folder. If the assumption is disproven, stop designing and use the
+topic protocol's reopening transition: retain the failed evidence, record the
+reason, invalidate any prior design approval, set phase `investigating`, and
+commit. Return to the approach conversation and focused investigation; do not
+continue implementation under the disproven approach.
 
 ### 3. Draft the design
 
@@ -77,6 +82,11 @@ approach conversation.
 
 ### 4. The gate
 
+Save `design.md` as a draft with its feasibility evidence before requesting
+approval, and commit the related artifacts and state under the topic protocol.
+Commit meaningful draft revisions too. If revising a previously approved
+contract, clear its approval first; an old stamp never approves new behavior.
+
 Read `~/.agents/skills/_shared/style.md` now, immediately before reporting.
 Explain what will be built, how it will behave (with an example where useful),
 why this approach fits, and any meaningful limits or trade-offs. Summarize the
@@ -88,7 +98,7 @@ technical evidence in `design.md`. Make every scope or behavior
 choice needing approval clear in chat. Reread the style contract before
 presenting a revised design after further work. Iterate until the human says
 **"approved"** — explicitly. Denied or redirected means revise or return to
-investigate; never proceed on silence.
+investigate using the shared reopening transition; never proceed on silence.
 
 ### 5. Record
 
@@ -97,6 +107,8 @@ On approval:
 - Write `design.md` (design + feasibility evidence appendix).
 - Update `_state.md`: `design_approved: <date>`, phase → `design-approved`,
   branch name if agreed; log line.
+- Mark the design approved and commit the design, evidence, decisions, and
+  state together using the topic protocol.
 - If the human wants the stack on the tracker, publish it via the `to-tickets`
   skill (it reads the same tracker recipes) rather than reimplementing.
 - Tell the human the topic is ready for `execute`.

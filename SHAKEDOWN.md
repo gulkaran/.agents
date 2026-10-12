@@ -8,7 +8,7 @@ friction in the skill docs, not to ship the work fast. Fix docs as you go.
 - [ ] `investigate` a real idea in a real repo. Check: topic folder + `.topic`
       marker created under the vault; report is tiered, not a wall; approaches
       are credible (or a single obvious one, stated as such); it waited for
-      **your** approach choice; `research.md` + `decisions.md` written.
+      **your** approach choice; `investigation.md` + `decisions.md` written.
 - [ ] `design` the chosen approach. Check: it spiked the riskiest assumption
       (or explicitly said nothing was risky); acceptance criteria are
       behavior, not steps; PR count is minimal with a clear reason for each split; it required
@@ -39,6 +39,14 @@ friction in the skill docs, not to ship the work fast. Fix docs as you go.
 
 ## Cross-cutting
 
+- [ ] Meaningful drafts, completed artifacts, and related state updates are
+      committed in the vault, without unrelated changes or application commits.
+- [ ] Failed feasibility retains the experiment, records why the approach
+      failed, clears stale approval, and returns the topic to investigation.
+- [ ] Reinvestigation updates the same `investigation.md`; another session can
+      compare approaches using Git history and `decisions.md` without the chat.
+- [ ] Supporting notes live in `research/<subject>.md`; execution and review
+      artifacts live in `verification/`, with earlier results preserved.
 - [ ] Skills read `_shared/style.md` immediately before reports and decision
       requests, including revised reports after further work.
 - [ ] Chat reports explained the features, key findings, recommendation, and

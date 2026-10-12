@@ -20,6 +20,12 @@ Resolve the topic. **Refuse to run without `design_approved` in `_state.md`**
 — point the human at `design` instead. Work on the branch recorded in
 `_state.md` (create it if needed). Set phase `executing`.
 
+Keep verification artifacts under the topic's `verification/` folder, using
+descriptive subfolders for separate runs. Preserve earlier results and record
+the tested application revision, commands, outcomes, and limitations. Commit
+meaningful vault updates at slice boundaries and before handoffs or drift
+stops using the topic protocol, separately from application red/green commits.
+
 ## Per slice, in the design's stack order
 
 ### 1. Tests first (red)
@@ -61,9 +67,9 @@ When the stack (or the agreed set of slices) is green:
    for visible changes when capture tools are available, or test output,
    request/response examples, or measured data as appropriate. Test commands
    alone are instructions, not evidence of a successful run. Preserve useful
-   raw evidence in the topic's vault folder and include reviewer-accessible
-   evidence in the PR itself. If capture or upload tools are unavailable,
-   use the strongest available evidence and state the verification limits;
+   raw evidence in the topic's `verification/` folder and include
+   reviewer-accessible evidence in the PR itself. If capture or upload tools
+   are unavailable, use the strongest available evidence and state the verification limits;
    never invent proof or treat missing screenshot tooling alone as an
    approval gate.
 2. Read `~/.agents/skills/_shared/style.md` immediately before reporting.
@@ -71,7 +77,7 @@ When the stack (or the agreed set of slices) is green:
    Call out deviations and post-red test changes with their importance and
    justification in the agent session, not in the PR description. Keep their
    durable record in `decisions.md`. Save detailed test output and diffstats
-   in an execution appendix to `design.md`.
+   in `verification/` and link to it from an execution appendix in `design.md`.
    Reread the style contract before a revised report after further work.
 3. Push and open PRs automatically per the PR style doc and the approved
    design's PR grouping. Do not wait for a separate pre-PR approval or write
@@ -79,4 +85,5 @@ When the stack (or the agreed set of slices) is green:
    above still apply.
    Multiple implementation slices may share a PR; do not create a PR per
    session or test step. Record the PR URL(s) in `_state.md`, phase →
-   `in-review`, log line. Tell the human the topic is ready for `self-review`.
+   `in-review`, log line. Commit the related vault artifacts and state before
+   telling the human the topic is ready for `self-review`.

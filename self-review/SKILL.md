@@ -115,4 +115,6 @@ outcomes when revising a review.
 Record the review scope, verification performed, and meaningful gaps. Distinguish
 "no blockers found" from "fully verified" when checks were unavailable. Log one
 line in `_state.md`. Recommend `review-fix` for actionable findings, making clear
-which are required before merge and which are optional; changes remain untouched.
+which are required before merge and which are optional; application changes
+remain untouched. Keep retained check output in `verification/` and commit
+the review, supporting artifacts, and state log using the topic protocol.
