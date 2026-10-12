@@ -19,16 +19,25 @@ A PR covers only its own branch's changes.
 ## What changed
 
 - One bullet per meaningful change, behavior-first (what it does, not which
-  files moved).
-- Under the relevant change, show concrete proof: before → after behavior,
-  screenshots, actual test results, request/response output, or measured data.
-  Explain what the evidence demonstrates and the conditions it was collected
-  under. If a before capture isn't available, show direct evidence that the
-  new behavior works and state any meaningful verification limits.
+  files moved). Keep each bullet to a short sentence.
+
+## Screenshots
+
+Optional: include useful application screenshots captured during verification.
+For a changed screen, use a simple comparison:
+
+| Before | After |
+| --- | --- |
+| ![Before](uploaded-before-url) | ![After](uploaded-after-url) |
+
+Use an after-only image for a new screen or when no before capture exists.
+Add a short caption only when needed. Omit this section when there are no
+useful, reviewer-accessible screenshots.
 
 ## How to test
 
-- Concrete steps or the test command(s) that prove the behavior.
+- Briefly list checks actually run and their outcomes, plus any meaningful
+  verification gaps. Add manual steps only when they help review the change.
 
 ## Why
 
@@ -47,12 +56,14 @@ issue when one exists; use `Closes #<n>` only when this PR resolves it.
   the agent session and retain them in `decisions.md`, not in the PR
   description. Still describe the actual shipped behavior and relevant
   limitations clearly.
-- Evidence must be real and accessible to reviewers: embed uploaded images,
-  include concise output/data inline, or link accessible CI runs or artifacts.
-  Local paths and unrun test commands are not proof. If screenshot or upload
-  tooling is unavailable, use available test/output evidence and state what
-  remains unverified. Do not fabricate captures or results. Exclude secrets
-  and private data from published evidence.
+- Keep **What changed** focused on shipped behavior. Put screenshots in
+  **Screenshots** and the brief verification summary in **How to test**.
+  Avoid raw logs, per-test narratives, and an evidence checklist for every
+  change. Include a measurement only when it helps explain the improvement.
+- Embed real screenshots using URLs reviewers can access. Local paths do not
+  render on GitHub. If images cannot be uploaded, omit them from the PR and
+  mention the limitation in the agent session. Do not fabricate captures or
+  results, and exclude secrets and private data from published evidence.
 - Tests-first evidence stays visible: don't squash away the red commit locally
   before the PR is opened (squash-on-merge is fine).
 - No generated noise, no credentials, no unrelated changes in the diff.
