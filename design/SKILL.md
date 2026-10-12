@@ -12,7 +12,8 @@ slices. Execution refuses to start without this approval.
 
 Read first: `~/.agents/skills/_shared/config.md`,
 `~/.agents/skills/_shared/topic.md`.
-No production code changes — the only code written here is a throwaway spike.
+No production code changes — code written here is an exploratory spike,
+retained as feasibility evidence rather than production implementation.
 
 ## Process
 
@@ -26,10 +27,22 @@ whether to proceed directly — the human's call, recorded in the log.
 
 Identify the **riskiest assumption** of the chosen approach — the thing that,
 if false, invalidates the design. Prove or disprove it with the cheapest
-possible spike (a scratch script, an API call, a 20-line prototype). The spike
-is **throwaway**: discard the code, keep the evidence in the design's
-appendix. If nothing is genuinely risky, say so explicitly — don't perform
-feasibility theatre. If the assumption is disproven, stop and return to the
+possible spike (a scratch script, an API call, a 20-line prototype).
+
+Before creating spike files, resolve the topic under the effective
+`vault_path` (including `config.local.md` overrides). Create and work in
+`<vault_path>/<project>/topics/<slug>/feasibility/`, not `/tmp` or another
+temporary directory. Keep the spike's scripts, prototypes, inputs, and useful
+outputs there so the work remains accessible after the session. Use descriptive
+subfolders for separate experiments and preserve earlier evidence. If the vault
+cannot be located or written, ask for the correct path rather than silently
+falling back to temporary storage.
+
+Record the assumption, how to rerun the spike, its result, and limitations
+alongside the files. Summarize the evidence in the design's appendix and link
+to the retained artifacts. Retain disproven experiments too. If nothing is
+genuinely risky, say so explicitly — don't perform feasibility theatre or create
+an empty folder. If the assumption is disproven, stop and return to the
 approach conversation.
 
 ### 3. Draft the design

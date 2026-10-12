@@ -40,19 +40,42 @@ where this work lives, what it touches, and what constrains it.
   Delegated legwork can run on faster models; synthesis stays here.
 - Ground every claim in the working tree, not memory or a search index.
 
-### 4. Synthesize findings
+### 4. Resolve uncertainties together
+
+Use the exploration to separate facts you can establish from product and
+business decisions that need the human's judgment. Answer factual questions
+from the codebase and sources yourself; explain the evidence rather than
+asking the human to look it up. Reuse goals and decisions already given.
+
+Stress-test assumptions that could change the approach: who this serves,
+which problem matters, what success means, scope, and acceptable trade-offs.
+Treat these as a decision tree. Ask a focused round of questions whose
+prerequisites are settled; save dependent questions for the next round.
+For each question, give credible options when useful, your recommended
+answer, and why. Be explicit about uncertainty behind the recommendation;
+do not manufacture alternatives or turn a preference into an established fact.
+
+Wait for the human's answers before settling those decisions. Continue
+independent exploration while waiting, then use the answers to expose the
+next relevant questions. Stop when the uncertainties that could materially
+change the approach are resolved; leave detailed design choices for `design`.
+If exploration already answers everything relevant, summarize that evidence
+and proceed without inventing questions. These answers inform the approach;
+they do not replace the human's approach choice below.
+
+### 5. Synthesize findings
 
 Identify the main findings, their practical impact, and how they affect the
 approach. Preserve constraints, risks, prior art, and supporting evidence for
 the artifact; distinguish decision-relevant findings from minor details.
 
-### 5. Approaches
+### 6. Approaches
 
 Present **credible alternatives when they exist** — with honest trade-offs
 and a recommendation. **Never manufacture options**: if there is one obvious
 way to do it, say exactly that and why, and present just it.
 
-### 6. Report and converse
+### 7. Report and converse
 
 Read `~/.agents/skills/_shared/style.md` now, immediately before reporting.
 Explain the main findings, intended features, and recommended approach in
@@ -61,12 +84,13 @@ questions, dig deeper where asked, revise findings. Reread the style contract
 before a revised report after further investigation. **The human picks the
 approach.** Do not proceed on a recommendation alone.
 
-### 7. Record
+### 8. Record
 
 On the human's choice:
 
 - Write `research.md`: the human-facing explanation, complete findings and
-  approach reasoning, the chosen approach, plus an appendix (evidence, paths,
+  approach reasoning, the chosen approach, product/business answers and their
+  rationale, any remaining uncertainties, plus an appendix (evidence, paths,
   commands run).
 - Append the approach choice to `decisions.md` (decision + why).
 - Update `_state.md`: phase → `designing`, log line.

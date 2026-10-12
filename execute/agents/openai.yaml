@@ -1,6 +1,6 @@
 interface:
   display_name: "Execute"
-  short_description: "TDD slices: red commit first, pre-PR human gate"
-  default_prompt: "Use $execute to implement the approved design in TDD slices and stop at the pre-PR report."
+  short_description: "TDD slices with behavior evidence and automatic PR creation"
+  default_prompt: "Use $execute to implement the approved design in TDD slices, verify behavior with concrete evidence, and open the PRs automatically."
 policy:
   allow_implicit_invocation: false

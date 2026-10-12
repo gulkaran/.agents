@@ -14,6 +14,7 @@ paths around — state on disk is the shared memory.
   _state.md      # phase, approvals, links — read first, write last
   research.md    # written by investigate
   design.md      # written by design (includes feasibility evidence)
+  feasibility/   # retained spike files and evidence, when needed by design
   decisions.md   # append-only decision log
   review.md      # written by self-review, updated by review-fix
 ```
@@ -40,9 +41,8 @@ session in that worktree self-locates.
 ---
 topic: <slug>
 project: <project>
-phase: investigating | designing | design-approved | executing | pre-pr-approved | in-review | done
+phase: investigating | designing | design-approved | executing | in-review | done
 design_approved: <date, once given in chat>
-pre_pr_approved: <date, once given in chat>
 issue: <tracker URL, if any>
 branch: <git branch>
 pr: <PR URL, once open>

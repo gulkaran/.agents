@@ -25,6 +25,9 @@ untouched.
    names".
 2. **to-tickets:** added an optional `## Context` section to the issue
    template linking the topic folder (see `_shared/topic.md`).
+3. **research:** resolve output through the shared vault config and topic
+   protocol before delegation; save supporting notes in the topic folder,
+   preserve workflow synthesis and phase, and remove the repo-docs fallback.
 
 To update the vendored set: re-copy from a newer commit, re-apply the
 modifications above, and update the pinned SHA here.

@@ -1,6 +1,6 @@
 interface:
   display_name: "Self-review"
-  short_description: "Context-aware merge-blocker review, analysis only"
-  default_prompt: "Use $self-review to review this topic's changes for merge-blockers with the recorded decisions in hand."
+  short_description: "Context-aware review of blockers and code quality"
+  default_prompt: "Use $self-review to review this topic's diff, whole files, and connected codebase for merge blockers and actionable quality improvements, with the design and recorded decisions in hand."
 policy:
   allow_implicit_invocation: false

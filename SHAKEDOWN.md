@@ -15,8 +15,10 @@ friction in the skill docs, not to ship the work fast. Fix docs as you go.
       an explicit "approved"; `design.md` + stamp in `_state.md`.
 - [ ] `execute`. Check: red commit exists **before** implementation commits;
       no test was weakened post-red without a `decisions.md` line; drift
-      handled per policy; it stopped at the pre-PR report and waited; PR
-      matches `_shared/pr.md`.
+      handled per policy; it reported deviations in chat and opened PRs
+      automatically after verification; PR matches `_shared/pr.md`, includes
+      accessible behavior evidence, and omits local vault links and design
+      deviation commentary.
 - [ ] `self-review`. Check: it read `decisions.md` first; deliberate
       deviations appear under "Verified deliberate" in the artifact, not as findings;
       test-integrity pass ran against the red commits; merge-blockers ranked
