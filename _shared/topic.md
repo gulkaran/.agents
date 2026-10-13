@@ -20,11 +20,28 @@ changes under the versioning rules below, including drafts before a handoff.
   verification/     # execution/review results, screenshots, and rerun details
   decisions.md      # append-only decision log
   review.md         # written by self-review, updated by review-fix
+  orchestration-summary.md # appended phase reports during orchestration
 ```
 
 - `<project>` is the repo name unless the human says otherwise.
 - `<slug>` is short and kebab-case, derived from the idea/issue title.
 - Create files and subfolders only when there is content to save.
+
+## Orchestrated runs
+
+When the user requests `orchestrate`, follow
+[`orchestrate/SKILL.md`](../orchestrate/SKILL.md) for approvals, delegation,
+reports, and stopping conditions. Pass that file to every phase agent.
+
+- Its approval rules replace the interactive gates in this protocol and the
+  phase skills for that run. Record decisions as delegated choices, not human replies.
+- Each phase still reads `style.md`. Append its normal report to
+  `orchestration-summary.md` instead of returning the report in chat.
+- The orchestrator commits vault changes after each phase. Phase agents make
+  the application commits required by `execute` and `review-fix`.
+- Keep the topic `in-review` when automation finishes. Record the orchestration
+  outcome separately. A reviewed PR does not mean it has merged.
+- Standalone skill calls keep their existing approval and reporting rules.
 
 ## Document versions and commits
 

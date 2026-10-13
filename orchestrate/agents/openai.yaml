@@ -1,0 +1,4 @@
+interface:
+  display_name: "Orchestrate"
+  short_description: "Take an issue to a reviewed PR with phase agents"
+  default_prompt: "Use $orchestrate to take this issue through implementation and review."
