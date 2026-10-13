@@ -93,12 +93,13 @@ In order:
 
 1. A `.topic` file at the worktree root (gitignored) containing the absolute
    path of the topic folder.
-2. A branch named `topic/<slug>` (or a branch recorded in some topic's
+2. A branch named `<category>/<slug>` (or a branch recorded in some topic's
    `_state.md`).
 3. Ask the human.
 
 When a skill **creates** a topic it writes the `.topic` marker so every later
-session in that worktree self-locates.
+session in that worktree self-locates. Name new branches `<category>/<slug>`.
+Use the current checkout; ask the human before creating a worktree.
 
 ## `_state.md`
 
