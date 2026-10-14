@@ -8,9 +8,9 @@ orchestration:
   models:
     investigate: {model: gpt-6-astra, reasoning_effort: medium}
     design: {model: gpt-6-astra, reasoning_effort: medium}
-    execute: {model: gpt-6.1-sol, reasoning_effort: medium}
+    execute: {model: gpt-6-astra, reasoning_effort: medium}
     self-review: {model: gpt-6-astra, reasoning_effort: medium}
-    review-fix: {model: gpt-6.1-sol, reasoning_effort: medium}
+    review-fix: {model: gpt-6-astra, reasoning_effort: medium}
   max_fix_rounds: 3
   max_replans: 2
   max_nested_agents: 0
