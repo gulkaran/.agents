@@ -19,7 +19,9 @@ The main workflow is `investigate → design → execute → self-review → rev
 For larger or less defined work, `wayfinder` maps decisions, `to-spec` turns
 the discussion into a spec, and `to-tickets` creates actionable issues.
 `grilling`, `research`, `domain-modeling`, and `prototype` help answer specific
-questions along the way. See [VENDORED.md](VENDORED.md) for upstream credits.
+questions along the way. `teach` explains a body of work using `how` for
+architecture and runtime flow and `why` for evidence behind design decisions.
+See [VENDORED.md](VENDORED.md) for upstream credits.
 
 ## Why this works for me
 

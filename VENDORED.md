@@ -31,3 +31,18 @@ untouched.
 
 To update the vendored set: re-copy from a newer commit, re-apply the
 modifications above, and update the pinned SHA here.
+
+## Cursor pstack skills
+
+- **Upstream:** [cursor/plugins](https://github.com/cursor/plugins/tree/1e5c90a4b6f249917bd21fe361b3a2a7deb741b8/pstack/skills)
+- **Pinned commit:** `1e5c90a4b6f249917bd21fe361b3a2a7deb741b8`
+- **Skills:** `teach`, `how`, `why`, including their supporting references.
+- **Local modifications:** added `agents/openai.yaml` metadata, preserving
+  upstream explicit invocation; replaced Cursor agent/model configuration
+  with Codex subagents that inherit the parent model; use available Codex
+  tools for connector discovery and file reads, and the repository's
+  configured PR tooling for history.
+
+`teach` invokes `how`, `why`, and the existing `unslop` skill by name.
+To update, copy the three folders from a newer upstream commit, reapply
+these adaptations, and update the pinned commit here.

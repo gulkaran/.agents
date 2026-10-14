@@ -1,0 +1,6 @@
+interface:
+  display_name: "Why"
+  short_description: "Trace design decisions through historical evidence"
+  default_prompt: "Use $why to investigate why this code was built this way."
+policy:
+  allow_implicit_invocation: false
