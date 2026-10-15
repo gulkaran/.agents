@@ -4,6 +4,9 @@ Read this file after the substantive work, immediately before composing a
 report or decision request to the human. Read it again before a revised report
 or final handoff after further work. Do not rely on having read it at startup.
 
+Before reporting back, read and apply the
+[technical-writing skill](../technical-writing/SKILL.md) to the response.
+
 ## Simple terms, useful detail
 
 Write so the human understands on the first read, without asking for a simpler

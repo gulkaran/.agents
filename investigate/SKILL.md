@@ -35,6 +35,11 @@ specific question, not a questionnaire.
 Investigate the codebase and any relevant docs/sources until you can explain
 where this work lives, what it touches, and what constrains it.
 
+Trace the current user journey and related consumers. Explain current behavior,
+proposed behavior, and which consumers would remain unchanged. Call out
+consequences a user could reasonably find surprising. Distinguish established
+requirements, agent recommendations, and unresolved choices.
+
 - **Stay single-agent by default.** Fan out subagents only when there are
   genuinely independent questions worth delegating (e.g. "how does system A
   handle X" and "what does library B support" have no bearing on each other).
