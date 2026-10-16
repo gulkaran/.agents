@@ -1,0 +1,6 @@
+interface:
+  display_name: "Opening a PR"
+  short_description: "Reviewer-first PR title and description, then open it"
+  default_prompt: "Use $opening-a-pr to write the PR description for this branch and open the PR."
+policy:
+  allow_implicit_invocation: true

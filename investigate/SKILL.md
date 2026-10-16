@@ -1,110 +1,83 @@
 ---
 name: investigate
-description: Interactive investigation of an idea or issue. Explores the codebase and relevant sources, explains credible approach options, and ends with the human choosing the approach. Writes investigation.md to the topic folder. Use when starting work, revisiting an approach, or picking up an issue that isn't yet fully specified.
+description: Interactive investigation of an idea or issue. Scouts gather the facts, a grilling session settles the product and scope decisions with the human, and the human chooses the approach. Writes investigation.md to the topic folder. Use when starting work, revisiting an approach, or picking up an issue that isn't yet fully specified.
 disable-model-invocation: true
 ---
 
 # Investigate
 
-Turn an idea or issue into understood territory and a **human-chosen
-approach**. This phase is interactive: the human asks questions, redirects,
-and makes the approach call. Automate the legwork, never the judgment.
+Turn an idea or issue into a human-chosen approach. Scouts do the reading,
+you do the synthesis, and the human makes every product and scope decision.
+No production code changes in this phase.
 
 Read first: `~/.agents/skills/_shared/config.md`,
 `~/.agents/skills/_shared/topic.md`.
-No production code changes in this phase.
 
-## Process
-
-### 1. Resolve the topic
+## 1. Resolve the topic
 
 Follow the topic protocol: resolve or create the topic folder and write the
-`.topic` marker. For new work set phase `investigating` and log the session;
-for an existing topic read its state first and use the reopening transition
-when revisiting an approach. If the input is a tracker issue, fetch its full
-body and comments via the tracker recipes and link it in `_state.md`.
+`.topic` marker. New work: set phase `investigating` and log the session.
+Existing topic: read `_state.md` first and use the reopening transition when
+revisiting an approach. A tracker issue: fetch its body and comments with the
+tracker recipes and link it in `_state.md`.
 
-### 2. Frame
+## 2. Frame
 
-Restate the idea in one or two lines: what we're trying to achieve and what
-"done" would mean. If the goal itself is ambiguous, ask now — a short,
-specific question, not a questionnaire.
+Restate the goal in one or two lines: what we are trying to achieve and what
+"done" means. If the goal itself is ambiguous, ask one specific question now.
 
-### 3. Explore
+## 3. Send scouts
 
-Investigate the codebase and any relevant docs/sources until you can explain
-where this work lives, what it touches, and what constrains it.
+Split what you need to know into factual questions: where the work lives,
+what it touches, the current user journey and its consumers, constraints,
+prior art. Launch one scout per independent question in a single batch,
+following `~/.agents/skills/_shared/scout.md`. Keep questions that need
+judgment, or that depend on each other, for yourself.
 
-Trace the current user journey and related consumers. Explain current behavior,
-proposed behavior, and which consumers would remain unchanged. Call out
-consequences a user could reasonably find surprising. Distinguish established
-requirements, agent recommendations, and unresolved choices.
+Scouts read; they do not decide. Verify any scout claim you build on against
+the working tree before it reaches the human.
 
-- **Stay single-agent by default.** Fan out subagents only when there are
-  genuinely independent questions worth delegating (e.g. "how does system A
-  handle X" and "what does library B support" have no bearing on each other).
-  Delegated legwork can run on faster models; synthesis stays here.
-- Ground every claim in the working tree, not memory or a search index.
+## 4. Grill the human while scouts run
 
-### 4. Resolve uncertainties together
+Run a grilling session, following `~/.agents/skills/grilling/SKILL.md`, on
+the decisions only the human can make: who this serves, which problem
+matters, what success means, scope, acceptable trade-offs. Ask the whole
+frontier whose prerequisites are settled, each question with options and your
+recommended answer. A question that depends on a scout still running waits
+for that scout; the rest of the frontier does not.
 
-Use the exploration to separate facts you can establish from product and
-business decisions that need the human's judgment. Answer factual questions
-from the codebase and sources yourself; explain the evidence rather than
-asking the human to look it up. Reuse goals and decisions already given.
+- Facts are your job. Never ask the human for anything a scout can look up.
+- Do not invent questions. If exploration answers everything, say so.
+- Stop when nothing left could change the approach. Detailed design choices
+  belong to `design`.
 
-Stress-test assumptions that could change the approach: who this serves,
-which problem matters, what success means, scope, and acceptable trade-offs.
-Treat these as a decision tree. Ask a focused round of questions whose
-prerequisites are settled; save dependent questions for the next round.
-For each question, give credible options when useful, your recommended
-answer, and why. Be explicit about uncertainty behind the recommendation;
-do not manufacture alternatives or turn a preference into an established fact.
+## 5. Synthesize and present approaches
 
-Wait for the human's answers before settling those decisions. Continue
-independent exploration while waiting, then use the answers to expose the
-next relevant questions. Stop when the uncertainties that could materially
-change the approach are resolved; leave detailed design choices for `design`.
-If exploration already answers everything relevant, summarize that evidence
-and proceed without inventing questions. These answers inform the approach;
-they do not replace the human's approach choice below.
+Combine scout evidence and the human's answers into findings: current
+behavior, proposed behavior, which consumers stay unchanged, and anything a
+user would find surprising. Separate established requirements, your
+recommendations, and open choices.
 
-### 5. Synthesize findings
+Present credible alternatives with trade-offs and a recommendation. One
+obvious way: say so and present only it. Never manufacture options.
 
-Identify the main findings, their practical impact, and how they affect the
-approach. Preserve constraints, risks, prior art, and supporting evidence for
-the artifact; distinguish decision-relevant findings from minor details.
+Read `~/.agents/skills/technical-writing/SKILL.md` immediately before
+reporting, and again before any revised report. **The human picks the
+approach.** A recommendation alone is not a choice.
 
-### 6. Approaches
+## 6. Record
 
-Present **credible alternatives when they exist** — with honest trade-offs
-and a recommendation. **Never manufacture options**: if there is one obvious
-way to do it, say exactly that and why, and present just it.
-
-### 7. Report and converse
-
-Read `~/.agents/skills/_shared/style.md` now, immediately before reporting.
-Explain the main findings, intended features, and recommended approach in
-simple terms, with a concrete example where useful. Then converse: answer
-questions, dig deeper where asked, revise findings. Reread the style contract
-before a revised report after further investigation. **The human picks the
-approach.** Do not proceed on a recommendation alone.
-
-### 8. Record
-
-Before a handoff or waiting for an approach choice, save the current findings
-and options in `investigation.md`, clearly marking the choice as pending.
-Put supporting source research in `research/<subject>.md` and link to it.
-Commit meaningful revisions using the shared topic protocol, including drafts.
+Before waiting for the approach choice, save `investigation.md` with the
+choice marked pending and commit under the topic protocol. Put supporting
+source research in `research/<subject>.md`.
 
 On the human's choice:
 
-- Update `investigation.md`: the human-facing explanation, complete findings and
-  approach reasoning, the chosen approach, product/business answers and their
-  rationale, any remaining uncertainties, plus an appendix (evidence, paths,
-  commands run).
-- Append the approach choice to `decisions.md` (decision + why).
-- Update `_state.md`: phase → `designing`, log line.
-- Commit the investigation, decisions, and state together. On a repeat
-  investigation, revise the same file and explain why the approach changed.
+- `investigation.md`: findings, every grilling round (question, recommended
+  answer, the human's answer), the chosen approach and why, remaining
+  uncertainties, and an appendix of evidence, paths, and commands.
+- `decisions.md`: append the approach choice and its reasoning.
+- `_state.md`: set phase `designing`, one log line.
+- Commit all three together. On a repeat investigation, revise the same
+  `investigation.md` and explain why the approach changed.
 - Tell the human the topic is ready for `design`.

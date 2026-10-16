@@ -1,7 +1,7 @@
 # Topic protocol
 
 A **topic** is one unit of work moving through the pipeline
-(investigate → design → execute → self-review → review-fix). All of its
+(investigate → design → execute → pr-review → review-fix). All of its
 artifacts live in one folder in the knowledge vault, and one state file tracks
 where it stands. Every workflow skill reads this protocol, resolves the topic
 first, and updates state last. Skills never require the human to pass file
@@ -17,9 +17,9 @@ changes under the versioning rules below, including drafts before a handoff.
   research/         # supporting notes: <subject>.md, written by research
   design.md         # draft or approved design, including feasibility appendix
   feasibility/      # retained design experiments, including disproven ones
-  verification/     # execution/review results, screenshots, and rerun details
+  verification/     # execution/review evidence: screenshots, diagnostics, rerun details; never in the app repo
   decisions.md      # append-only decision log
-  review.md         # written by self-review, updated by review-fix
+  review.md         # written by pr-review, updated by review-fix
   orchestration-summary.md # appended phase reports during orchestration
 ```
 
@@ -35,10 +35,11 @@ reports, and stopping conditions. Pass that file to every phase agent.
 
 - Its approval rules replace the interactive gates in this protocol and the
   phase skills for that run. Record decisions as delegated choices, not human replies.
-- Each phase still reads `style.md`. Append its normal report to
+- Each phase still reads the technical-writing skill before reporting. Append
+  its normal report to
   `orchestration-summary.md` instead of returning the report in chat.
 - The orchestrator commits vault changes after each phase. Phase agents make
-  the application commits required by `execute` and `review-fix`.
+  the application commits required by `execute`, `deslop`, and `review-fix`.
 - Keep the topic `in-review` when automation finishes. Record the orchestration
   outcome separately. A reviewed PR does not mean it has merged.
 - Standalone skill calls keep their existing approval and reporting rules.
@@ -159,8 +160,8 @@ Append-only. One entry per decision, including mid-execution drift:
   industry-standard practice or from the approved design.
 ```
 
-This file is the context that keeps later phases honest: self-review reads it
-and does not flag deliberate deviations as findings.
+This file is the context that keeps later phases honest: pr-review's context
+pass reads it and marks findings that conflict with a recorded choice.
 
 ## Drift policy (during execute)
 

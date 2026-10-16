@@ -6,14 +6,17 @@ design, and decide which review fixes to make.
 
 ## How they work
 
-The main workflow is `investigate → design → execute → self-review → review-fix`.
+The main workflow is `investigate → design → execute → pr-review → review-fix`.
+Execute runs `deslop` and `opening-a-pr` before it hands a PR to review.
 
 | Skill | What it does |
 |---|---|
 | [investigate](investigate/SKILL.md) | Explores the problem and codebase, then explains the options so I can choose an approach. |
 | [design](design/SKILL.md) | Checks risky assumptions and defines the behavior, acceptance criteria, and PR plan for approval. |
-| [execute](execute/SKILL.md) | Implements the approved design with tests first, collects evidence, and opens PRs after verification. |
-| [self-review](self-review/SKILL.md) | Reviews the diff, whole files, and connected code for merge blockers and useful quality improvements. |
+| [execute](execute/SKILL.md) | Implements the approved design with tests first, keeps evidence in the vault, deslops the branch, and opens PRs after verification. |
+| [deslop](deslop/SKILL.md) | Removes local-testing docs, screenshots, probe scripts, and reflexive code patterns from a branch before it becomes a PR. |
+| [opening-a-pr](opening-a-pr/SKILL.md) | Writes a reviewer-first PR title and description and opens the PR. |
+| [pr-review](pr-review/SKILL.md) | Reviews any PR blind for bugs, risk, scale, tests, speed, and lean code; on my own PRs, a second pass checks findings and code against the design and decisions. |
 | [review-fix](review-fix/SKILL.md) | Verifies findings, proposes fixes for approval, and implements them with a clear record. |
 
 For larger or less defined work, `wayfinder` maps decisions, `to-spec` turns
@@ -21,7 +24,6 @@ the discussion into a spec, and `to-tickets` creates actionable issues.
 `grilling`, `research`, `domain-modeling`, and `prototype` help answer specific
 questions along the way. `teach` explains a body of work using `how` for
 architecture and runtime flow and `why` for evidence behind design decisions.
-See [VENDORED.md](VENDORED.md) for upstream credits.
 
 ## Why this works for me
 

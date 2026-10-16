@@ -1,0 +1,6 @@
+interface:
+  display_name: "Deslop"
+  short_description: "Remove agent artifacts and reflexive code patterns from a branch"
+  default_prompt: "Use $deslop to remove local-testing docs, screenshots, probe scripts, and code slop from this branch before opening the PR."
+policy:
+  allow_implicit_invocation: true
