@@ -30,9 +30,10 @@ Restate the goal in one or two lines: what we are trying to achieve and what
 
 Split what you need to know into factual questions: where the work lives,
 what it touches, the current user journey and its consumers, constraints,
-prior art. Launch one scout per independent question in a single batch,
-following `~/.agents/skills/_shared/scout.md`. Keep questions that need
-judgment, or that depend on each other, for yourself.
+prior art. Group them by the area of the codebase they share and launch one
+scout per area in a single batch, following
+`~/.agents/skills/_shared/scout.md`. Keep questions that need judgment, or
+that depend on each other, for yourself.
 
 Scouts read; they do not decide. Verify any scout claim you build on against
 the working tree before it reaches the human.
