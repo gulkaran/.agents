@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: Review a pull request for bugs, risk, scale, missing tests, speed, and lean code. Works on any PR by number, URL, or branch, or on the current topic. A blind pass reviews the code with no knowledge of the design; when the PR is yours, a second pass checks each finding and the code against the topic's design and decisions. Writes review.md for your own PRs; changes no code. Use for "review this PR", "review my PR", or after execute.
+description: Review a pull request for bugs, risk, scale, missing tests, speed, and lean code. Works on any PR by number, URL, or branch, or on the current topic. A blind pass reviews the code with no knowledge of the design; when the PR is yours, a second pass checks each finding and the code against the topic's design and decisions. Writes review/round-<n>.md for your own PRs; changes no code. Use for "review this PR", "review my PR", or after execute.
 disable-model-invocation: true
 ---
 
@@ -54,6 +54,9 @@ Resolve the topic and read `design.md` and `decisions.md`. Then:
    finding. No red history: record that instead of claiming the check passed.
 
 Deviations the executing agent recorded are claims to verify, not permission.
+Every fix you propose is a code change, a deletion, or a question for the
+human. A missing record, capture, or document is a gap to report, never a
+finding to close by creating one.
 
 ## 4. Report
 
@@ -63,9 +66,11 @@ change does, findings in Must fix, Should fix, and Nice to have with stable
 numbers, a verdict, and what you could not check. Step 3 annotations appear
 on their findings.
 
-- Your PR: write `review.md` in the topic folder with findings, annotations,
-  scope, and verification. Log one line in `_state.md` and commit under the
-  topic protocol. Recommend `review-fix` for actionable findings.
+- Your PR: write the next `review/round-<n>.md` in the topic folder: base
+  and head, findings with annotations, verification, and what you could not
+  check. One reviewed revision per file; never edit an earlier round or
+  carry its history forward. Log one line in `_state.md` and commit under
+  the topic protocol. Recommend `review-fix` for actionable findings.
 - A coworker's PR: report in chat. Post nothing to GitHub unless asked.
 
 ## When not to use

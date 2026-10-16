@@ -42,6 +42,7 @@ When the stack or the agreed slices are green:
 
 - Run the checks the changes call for and note outcomes and gaps.
 - Visible changes: capture and inspect after screenshots when tools allow. Missing capture tooling is not a gate.
+- A behavior you cannot verify is one line in the gap list for the human. Never stand in for the real check with a rendered approximation, a guide for someone else to run, or a probe test.
 - Retained evidence (screenshots, diagnostics worth keeping, rerun notes) goes under the topic's `verification/` folder in the vault, never in the application repo. Routine passing logs are not retained.
 - Commit vault updates at slice boundaries and before handoffs, separately from application commits.
 

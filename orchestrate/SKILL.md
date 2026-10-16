@@ -35,8 +35,8 @@ Invoke with `$orchestrate <issue or task>`. Add `skip investigation` when resear
 1. `investigate`, unless skipped. Its agent records the chosen approach and sets `designing`.
 2. `design`. On a skip, set `designing` and hand it the issue and supplied research.
 3. `execute`. It deslops the branch and opens PRs through `opening-a-pr` itself.
-4. `pr-review` on every PR. `review.md` records base and head revisions, unresolved Must fix IDs, check results, and gaps.
-5. Blockers left and budget left: increment `fix_rounds_used`, run `review-fix` with its plan saved but not gated, then a fresh `pr-review` that rechecks rejected findings too. Repeat.
+4. `pr-review` on every PR. Its `review/round-<n>.md` records base and head revisions, unresolved Must fix IDs, check results, and gaps.
+5. Blockers left and budget left: increment `fix_rounds_used`, run `review-fix` with its plan saved but not gated, then a fresh `pr-review` that rechecks rejected findings too. Repeat. A finding only a human can close stays open; a Must fix of that kind stops the run.
 6. Finish when the latest review covers the current revisions, finds no unresolved blocker, and required checks pass. Optional improvements go in the report, not another round.
 
 Failing required checks are blockers. A PR changed after its review is unreviewed until reviewed again. Budget exhausted with blockers left: `status: stopped`.

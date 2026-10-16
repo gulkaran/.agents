@@ -19,13 +19,16 @@ changes under the versioning rules below, including drafts before a handoff.
   feasibility/      # retained design experiments, including disproven ones
   verification/     # execution/review evidence: screenshots, diagnostics, rerun details; never in the app repo
   decisions.md      # append-only decision log
-  review.md         # written by pr-review, updated by review-fix
+  review/           # round-<n>.md per pr-review run; review-fix appends verdicts and outcomes
   orchestration-summary.md # appended phase reports during orchestration
 ```
 
 - `<project>` is the repo name unless the human says otherwise.
 - `<slug>` is short and kebab-case, derived from the idea/issue title.
 - Create files and subfolders only when there is content to save.
+- `review/round-<n>.md` covers one reviewed revision and stands alone: no
+  historical sections, no superseding notes. The highest number is the current
+  review; earlier rounds are never edited.
 
 ## Orchestrated runs
 

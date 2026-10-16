@@ -8,7 +8,7 @@ What the parent passes to every phase agent, and what comes back.
 - `~/.agents/skills/orchestrate/SKILL.md`: its delegated approvals replace the phase skill's human gates for this run.
 - Topic folder path and repository path.
 - Task scope and the delegated approval statement.
-- Relevant artifact paths: `investigation.md`, `design.md`, `review.md`.
+- Relevant artifact paths: `investigation.md`, `design.md`, the latest `review/round-<n>.md`.
 - Round or attempt number, and for review phases the base and head revisions.
 - The phase model and reasoning effort, and the nested-helper allowance left.
 
@@ -21,7 +21,7 @@ Tell the worker:
 
 ## Report
 
-Append to `orchestration-summary.md` under a heading with phase, round or attempt, date, and model, followed by artifact links and the reviewed revision where relevant. Include what the skill would have told the human: findings and chosen approach, design reasoning and feasibility, implementation results, review findings, fix plans and outcomes. Keep `investigation.md`, `design.md`, `decisions.md`, and `review.md` current; the summary collects reports and does not replace them.
+Append to `orchestration-summary.md` under a heading with phase, round or attempt, date, and model, followed by artifact links and the reviewed revision where relevant. Include what the skill would have told the human: findings and chosen approach, design reasoning and feasibility, implementation results, review findings, fix plans and outcomes. Keep `investigation.md`, `design.md`, `decisions.md`, and the current review round current; the summary collects reports and does not replace them.
 
 ## Return
 

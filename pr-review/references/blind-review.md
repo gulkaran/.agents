@@ -49,6 +49,9 @@ or topic folders; if you come across one, do not read it.
   empty, the code really is unused.
 - Propose the smallest fix that works. Prefer fixes that delete code. Never
   add layers, frameworks, or config the problem does not need.
+- A fix is a code change (tests count) or a deletion. If the only remedy is a
+  new document, screenshot, record, or other evidence, it is not a finding:
+  put it under `Not checked:` or leave it out.
 - No style taste, no "consider", no vague worries.
 
 ## Output

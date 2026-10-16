@@ -1,6 +1,6 @@
 ---
 name: review-fix
-description: Verify review findings from review.md or PR review threads, propose the smallest safe fixes for approval, implement each as its own commit, then reply to and resolve every thread on the PR. Use after pr-review or when a PR has review comments to address.
+description: Verify review findings from the latest review round or PR review threads, propose the smallest safe fixes for approval, implement each as its own commit, then reply to and resolve every thread on the PR. Use after pr-review or when a PR has review comments to address.
 disable-model-invocation: true
 ---
 
@@ -13,7 +13,7 @@ Read first: `~/.agents/skills/_shared/config.md`,
 
 ## 1. Gather findings
 
-Resolve the topic and load `design.md` and `decisions.md`. Collect findings from `review.md` and from the PR's unresolved review threads:
+Resolve the topic and load `design.md` and `decisions.md`. Collect findings from the highest-numbered `review/round-<n>.md` and from the PR's unresolved review threads:
 
 ```bash
 gh api graphql -f query='{ repository(owner: "<owner>", name: "<repo>") {
@@ -27,14 +27,15 @@ Other trackers: use the recipe `_shared/config.md` names.
 
 Against the actual code, with `decisions.md` open:
 
-- **Valid.** A real issue. Note severity and the smallest safe fix.
+- **Valid.** A real issue. Note severity and the smallest safe fix: a code change or a deletion.
 - **Invalid.** Wrong, already handled, or a recorded deliberate deviation. Cite the decision entry or the code line.
+- **Needs the human.** Valid, but the only remedy is a new document, screenshot, record, or decision entry. Report it and leave it open. A post-red test edit with no justification is closed by reverting the edit or by the human accepting it, never by writing the entry now.
 
-Never fix an unverified finding. A decision entry the executing agent wrote mid-run is a claim to check against `design.md`, not an automatic dismissal.
+Never fix an unverified finding, and never create an artifact to close one. A decision entry the executing agent wrote mid-run is a claim to check against `design.md`, not an automatic dismissal.
 
 ## 3. Propose and wait
 
-Read `~/.agents/skills/technical-writing/SKILL.md` immediately before reporting. Present verified issues, their impact, and the proposed fix, blockers first; summarize rejected findings by reason. Write every verdict into `review.md`, log in `_state.md`, and commit the vault before waiting. That checkpoint approves nothing.
+Read `~/.agents/skills/technical-writing/SKILL.md` immediately before reporting. Present verified issues, their impact, and the proposed fix, blockers first; summarize rejected findings by reason. Append every verdict to that round file under `## Verdicts`, log in `_state.md`, and commit the vault before waiting. That checkpoint approves nothing.
 
 Wait for the human to approve the plan. They may drop, defer, or adjust items.
 
@@ -51,9 +52,10 @@ After pushing:
 
 - **Valid finding.** Reply on its thread with the one-line fix and the commit link, then resolve it (GraphQL `resolveReviewThread`).
 - **Invalid finding.** Reply with the verdict and its citation, then resolve.
-- **`review.md`-only finding.** Record the outcome in `review.md`.
+- **Needs the human.** Reply with what it needs from a person and leave the thread unresolved.
+- **Round-file-only finding.** Record the outcome in the round file.
 
-Update `review.md` with every verdict and outcome. Log in `_state.md`; set phase `done` only when the human confirms nothing remains. Commit review outcomes, decisions, verification, and state together.
+Append every outcome to the round file under `## Outcomes`; never edit an earlier round. Log in `_state.md`; set phase `done` only when the human confirms nothing remains. Commit review outcomes, decisions, verification, and state together.
 
 Reread the technical-writing skill before the final handoff. Say what was fixed, whether verification passed, and what still needs attention.
 
