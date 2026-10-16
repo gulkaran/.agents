@@ -54,17 +54,24 @@ for that scout; the rest of the frontier does not.
 
 ## 5. Synthesize and present approaches
 
-Combine scout evidence and the human's answers into findings: current
-behavior, proposed behavior, which consumers stay unchanged, and anything a
-user would find surprising. Separate established requirements, your
-recommendations, and open choices.
+Combine scout evidence and the human's answers. Separate established
+requirements, recommendations, and open choices.
+
+Read `~/.agents/skills/teach/SKILL.md` and
+`~/.agents/skills/technical-writing/SKILL.md` immediately before reporting,
+including revised reports. Use `teach` to explain the issue and recommended
+approach before asking the human to choose.
+
+Explain what happens today, what goes wrong, and why it matters through one
+concrete example. Reuse that example to show what the recommended approach
+changes. List what the approach will do at a high level, including behavior
+it must preserve and anything surprising. Explain the intended outcomes;
+leave implementation mechanics to `design`.
 
 Present credible alternatives with trade-offs and a recommendation. One
 obvious way: say so and present only it. Never manufacture options.
 
-Read `~/.agents/skills/technical-writing/SKILL.md` immediately before
-reporting, and again before any revised report. **The human picks the
-approach.** A recommendation alone is not a choice.
+**The human picks the approach.** A recommendation alone is not a choice.
 
 ## 6. Record
 
@@ -74,7 +81,7 @@ source research in `research/<subject>.md`.
 
 On the human's choice:
 
-- `investigation.md`: findings, every grilling round (question, recommended
+- `investigation.md`: the report, every grilling round (question, recommended
   answer, the human's answer), the chosen approach and why, remaining
   uncertainties, and an appendix of evidence, paths, and commands.
 - `decisions.md`: append the approach choice and its reasoning.
