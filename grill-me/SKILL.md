@@ -29,4 +29,4 @@ Finding _facts_ is your job, never the user's. When a frontier question needs a 
 
 The session is done when the frontier is empty: every branch of the design tree visited, nothing left silently assumed. Do not act on it until the user confirms you have reached a shared understanding.
 
-For coding work, follow `../_shared/topic.md` for the interview scope and saved brief handoff.
+For coding work, follow `../_shared/topic.md` for the interview scope and saved brief handoff. Fact-finding supports the interview; it does not authorize the investigation phase or writing `investigation.md`. After recording brief confirmation, stop and hand off the brief path. The user invokes `investigate` in a new agent themselves; do not start it or reuse interview sub-agents for that phase.

@@ -49,6 +49,10 @@ the agent's recommendations.
 Commit and present the brief for confirmation under the approval rules below.
 Record that confirmation against its checksum and set phase `investigating`.
 This is the interview's confirmation, not an additional approval.
+For standalone `grill-me`, this phase marks readiness for investigation, not
+permission to begin it. Stop after the brief handoff; the user invokes
+`investigate` in a new agent. An explicitly invoked `orchestrate` workflow
+manages its own phase handoffs.
 
 ## Approvals and transitions
 
