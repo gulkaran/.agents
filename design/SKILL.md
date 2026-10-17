@@ -1,55 +1,76 @@
 ---
 name: design
-description: Turn a chosen approach into an implementation contract the human approves: riskiest assumption proven, acceptance criteria per slice, PR plan. Writes design.md and stamps the approval. Use after investigate, or directly on a small, well-specified task.
+description: Explain the technical changes, prove risky assumptions, and define an implementation contract for approval. Use after an approach is chosen or when revising an approved design.
 disable-model-invocation: true
 ---
 
 # Design
 
-Produce the contract execute builds against: what will be built, how we will know it works, and in which PR-sized slices. The riskiest assumption is tested before anything is promised, and nothing enters the contract that the chosen approach does not need. Execution refuses to start without the human's explicit approval.
+Map the chosen behavior to the system changes that implement it.
+Make storage, background work, and rollout consequences visible before the
+human approves implementation. Save the contract in `design.md`.
 
-Read first: `~/.agents/skills/_shared/config.md`,
-`~/.agents/skills/_shared/topic.md`.
-Code written here is a spike kept as evidence, never production code.
+## 1. Check the chosen approach
 
-## 1. Resolve the topic
+Read `../_shared/config.md` and `../_shared/topic.md`. Resolve the topic and
+verify the brief and approach approvals. Missing checkpoints return to their
+phase; a small task can have short documents, but still needs the decisions.
 
-Follow the topic protocol. Expect phase `designing` with `investigation.md` present. Revising an approved contract: use the shared revision transition first, so the old stamp cannot approve new behavior. No investigation (a small, well-specified task): say so, ask whether to proceed directly, and log the answer.
+Read the brief, investigation, and decisions. Use the revision transition
+before changing an approved design.
 
 ## 2. Prove the riskiest assumption
 
-Name the one assumption that, if false, invalidates the approach. Prove or disprove it with the cheapest spike: a scratch script, an API call, a 20-line prototype.
+Identify the assumption that could invalidate the approach. Test it with a
+focused experiment under the topic's `feasibility/` folder. Record the
+assumption, rerun instructions, result, and limitations beside its files.
+Spike code is evidence, not production implementation.
 
-- Work in `<vault_path>/<project>/topics/<slug>/feasibility/`, resolving `vault_path` with `config.local.md` overrides. Never `/tmp`. One subfolder per experiment; keep disproven ones. If the vault cannot be written, ask for the path.
-- Record beside the files: the assumption, how to rerun, the result, limitations.
-- Nothing genuinely risky: say so. No feasibility theatre, no empty folder.
-- Disproven: stop designing. Use the topic protocol's reopening transition (retain evidence, record the reason in `decisions.md`, clear approval, phase `investigating`, commit) and return to the approach conversation.
+If nothing needs a spike, explain why. Preserve failed experiments. A disproven
+approach returns to investigation through the topic protocol.
 
-## 3. Draft the contract
+## 3. Draft the technical contract
 
-`design.md` holds, in this order:
+Write `design.md` with:
 
-- **Behavior contract.** Acceptance criteria per slice, as observable behavior. These become the tests execute writes first.
-- **PR plan.** The fewest PRs that keep the work coherent. One PR for a cohesive feature; split only at a boundary with a concrete review, dependency, rollout, or ownership benefit, and name it. Layers (infra, backend, frontend) are not automatic boundaries.
-- **Per-PR scope.** Title, one-sentence responsibility, a short list of what it adds, what works after it lands, dependencies on other PRs. "Backend" alone is not a scope.
-- **Implementation slices.** Small verifiable steps inside those PRs, ordered by real dependency, tests kept with the behavior they verify. A session or ticket does not earn its own PR. Note delegation opportunities here, not as PR boundaries.
-- **Test plan.** Core behaviors to cover; explicitly not exhaustive micro-testing.
-- **Deliberate deviations.** Anything knowingly outside standard practice, also appended to `decisions.md`.
+- Behavior and acceptance criteria linked to the brief's requirement IDs.
+- The current flow and proposed flow, with a small diagram when useful.
+- Applicable changes to tables, migrations, APIs, workers, jobs, dependencies,
+  permissions, and deployment order. Explain purpose, consequences, and
+  alternatives for significant choices.
+- Data preservation, failure handling, and recovery where the change needs them.
+- The fewest coherent PRs, each with an ID, scope, dependencies, base strategy,
+  and what works after it lands. Split for a concrete review or rollout benefit.
+- Verifiable implementation slices and test boundaries. State what each
+  boundary catches and misses, including migration tests when applicable.
+- Feasibility evidence, unresolved risks, and deliberate deviations.
 
-Scope stops at the chosen approach. No slice, option, migration path, or document the investigation did not ask for: extra slices are where over-building starts. No file-by-file pseudo-code.
+Keep scope within the chosen approach. A newly necessary capability goes back
+for a scope decision. Avoid file-by-file pseudocode.
 
-## 4. Get explicit approval
+Example:
 
-Save `design.md` as a draft with its feasibility appendix and commit under the topic protocol before asking. Commit meaningful revisions too.
+> We will store scheduled deliveries in a new table. A worker will claim
+> deliveries when they become due. This needs a migration and a worker process.
+> Retries can send a delivery twice, so the design must specify how duplicate
+> sends are prevented.
 
-Read `~/.agents/skills/technical-writing/SKILL.md` immediately before presenting, and again before a revised presentation. In chat: what will be built and how it behaves (an example where useful), why this approach fits, limits and trade-offs, the feasibility result in plain words, then the PR plan one PR at a time. Make every choice that needs approval explicit. Full criteria and evidence stay in `design.md`.
+Describe the mechanism chosen for this feature, not just a list of technologies.
+Explicitly state when storage or background processing is unchanged, so absence
+from the report is not mistaken for an oversight.
 
-Iterate until the human says **approved**. Denied or redirected means revise, or return to investigate through the reopening transition. Silence is not approval.
+## 4. Present the design for approval
 
-## 5. Record
+Save and commit the draft before asking. Read `../wait-what/SKILL.md`.
+Explain what happens, how the main components implement it, the operational
+consequences, feasibility results, and the PR plan. Make unresolved choices
+explicit. Do not bury a migration or new worker in an appendix.
 
-- `design.md`: mark approved, feasibility evidence as an appendix.
-- `_state.md`: `design_approved: <date>`, phase `design-approved`, branch name if agreed, log line.
-- Commit design, evidence, decisions, and state together.
-- Tracker wanted: publish the stack with `to-tickets`; do not reimplement it.
-- Tell the human the topic is ready for `execute`.
+Revise until the human approves the technical contract. Record approval
+against the document checksum, set phase `design-approved`, and commit state
+and decisions. Approval includes the proposed test boundaries.
+
+## When not to use
+
+Use `investigate` when the approach is unsettled. Use `execute` to implement
+the approved contract. Publish tracker issues through `to-tickets` if requested.

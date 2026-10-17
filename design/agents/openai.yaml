@@ -1,6 +1,6 @@
 interface:
   display_name: "Design"
-  short_description: "Feasibility-proven design and PR stack, gated on approval"
-  default_prompt: "Use $design to turn the chosen approach into an implementation contract for my approval."
+  short_description: "Explain technical changes and approve the PR plan"
+  default_prompt: "Use $design to explain the technical consequences and PR plan for my approval."
 policy:
   allow_implicit_invocation: false

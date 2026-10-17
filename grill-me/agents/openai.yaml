@@ -1,0 +1,4 @@
+interface:
+  display_name: "Grill Me"
+  short_description: "Clarify intent and confirm a brief for investigation"
+  default_prompt: "Use $grill-me to work through this idea and save a brief for me to confirm."

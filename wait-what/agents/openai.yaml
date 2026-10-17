@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wait-what"
+  short_description: "Explain an approach or design in plain language"
+  default_prompt: "Use $wait-what to explain this proposal with context and a concrete example."

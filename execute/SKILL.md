@@ -1,57 +1,88 @@
 ---
 name: execute
-description: Implement an approved design in TDD slices. Behavior tests are committed red first, then code to green; evidence goes to the vault, the branch is desloped, and PRs open automatically when verification passes. Use only on a topic with a recorded design approval.
+description: Implement an approved design with one fresh worker per PR, behavior tests first, and deslop in separate commits. Use for "execute the design" or "build the PR stack". Pause after the full stack is created.
 disable-model-invocation: true
 ---
 
 # Execute
 
-Implement the approved design slice by slice, tests first. Git history is the proof that tests came before code. The application repo receives only what the design asked for: evidence, notes, and anything you made to convince yourself go to the vault or get deleted before the PR opens.
+Coordinate one fresh implementation worker per PR in the approved design.
+Build the complete stack without approval pauses between PRs, then hand it to
+the human. Material drift interrupts execution before the affected work proceeds.
 
-Read first: `~/.agents/skills/_shared/config.md`,
-`~/.agents/skills/_shared/topic.md`.
+## 1. Check the contract
 
-## 1. Resolve the topic
+Before any tool call or repository inspection, follow
+[`../_shared/verification.md`](../_shared/verification.md): ask **Is this work or
+personal?** and wait for the human's answer. An explicit answer in this request
+or supplied by the caller for this same run satisfies the gate. Never infer it
+from the repository or machine. Pass the confirmed context to every worker.
 
-Follow the topic protocol. Refuse to run without `design_approved` in `_state.md` and point the human at `design`. Work on the branch in `_state.md`, creating it if needed. Set phase `executing`.
+Read `../_shared/config.md` and `../_shared/topic.md`. Resolve the topic and
+verify all three approval checksums. Read the brief, investigation, design,
+decisions, and feasibility evidence.
 
-## 2. Write the tests red
+Reconcile existing branches, PRs, and `execution/` handoffs before resuming.
+Do not recreate a completed PR or overwrite an active worker's changes.
+Initialize missing PR entries from the approved design and set phase
+`executing`.
 
-Per slice, in the design's stack order:
+## 2. Launch a PR worker
 
-- Derive tests from the slice's acceptance criteria in `design.md`: the behavior wanted, not the implementation about to exist. Core coverage of the concepts that matter, not exhaustive micro-tests.
-- The test author must not see implementation in progress. Write tests before any code exists, or delegate test authoring to a subagent given only `design.md`.
-- Commit the failing tests: `test(<slice>): red — <behavior>`. Never rewrite this commit away before the PR exists.
-- Visible change: capture a before screenshot into the topic's `verification/` folder when tools allow.
+Follow [the PR worker contract](references/pr-worker.md). Launch a fresh agent
+with no inherited conversation for each PR. Pass the approved artifacts,
+assigned PR scope, repository path, and completed dependency handoffs.
+Resolve profile and evidence storage under the confirmed work/personal context.
+Pass the profile path or its absence and a distinct evidence directory per PR.
 
-## 3. Implement to green
+Use the session model unless the user or orchestrator specifies another.
+Run workers sequentially in dependency order, with one application writer.
+Fresh context does not require a new worktree. Record the active PR and worker
+under `execution` in state. Save the PR before launch and the worker ID as soon
+as the launch returns; reconcile both before another writer starts.
 
-- Implement until the red tests pass. Mechanical slices may go to faster models with the design contract attached.
-- Never weaken a test to make it pass. Any test edit after the red commit gets a one-line justification in `decisions.md`; a silent edit is an automatic pr-review finding.
-- Touch only what the slice needs. No helper, abstraction, flag, or configuration the acceptance criteria do not call for.
-- Docs in the repo only when an explicit repo rule requires one for the code path you touched, such as an `AGENTS.md` intent-doc table. Never add guides, references, READMEs, previews, or local-testing notes. A well-written qualification guide still had to be deleted in a follow-up PR.
-- Scripts, fixtures, and probes you write to try things out are scratch. Keep them out of commits or delete them in the same slice.
+A missing delegation capability is a reported blocker; do not silently build
+the whole stack in the coordinator.
 
-## 4. Handle drift
+## 3. Handle the handoff
 
-Apply the topic protocol's drift policy. Minor: record in `decisions.md` and continue. Medium or larger (acceptance criteria, public interfaces, dependencies, security, a false design assumption): stop, raise it in chat with options, and wait.
+Verify the worker's branch, base, commits, PR URL, and reported checks.
+Read its `execution/<pr-id>.md`, update the PR entry, and commit vault changes.
+Pass the verified handoff to workers that depend on it.
 
-## 5. Verify
+A worker uses `../tdd/SKILL.md`, commits green, runs `../deslop/SKILL.md`,
+then launches a fresh verification agent using `../verify/SKILL.md` on the final
+revision. After verification passes, it opens its PR through
+`../opening-a-pr/SKILL.md` with the verification summary and inspected screenshots.
+Deslop runs on every PR's own diff and makes a separate commit when it changes
+anything. Never launch code simplification automatically.
 
-When the stack or the agreed slices are green:
+Apply the shared drift policy. Return material questions to the human with
+their consequence and options. A failed required check or unavailable verification
+blocks claiming that PR complete; report the gap without manufacturing evidence.
 
-- Run the checks the changes call for and note outcomes and gaps.
-- Visible changes: capture and inspect after screenshots when tools allow. Missing capture tooling is not a gate.
-- A behavior you cannot verify is one line in the gap list for the human. Never stand in for the real check with a rendered approximation, a guide for someone else to run, or a probe test.
-- Retained evidence (screenshots, diagnostics worth keeping, rerun notes) goes under the topic's `verification/` folder in the vault, never in the application repo. Routine passing logs are not retained.
-- Commit vault updates at slice boundaries and before handoffs, separately from application commits.
+## 4. Verify the stack
 
-## 6. Deslop, then open PRs
+After every planned PR exists, compare the stack against the design's scopes
+and requirement IDs. Check dependency bases, current heads, verification
+results, and separate cleanup commits. A child PR's diff must not include its
+parent's feature as new work.
 
-1. Run `~/.agents/skills/deslop/SKILL.md` on the branch.
-2. Open PRs with `~/.agents/skills/opening-a-pr/SKILL.md`, following the design's PR grouping. No separate pre-PR approval: design approval and the drift rules are the gates.
-3. Record PR URLs in `_state.md`, set phase `in-review`, log, and commit the vault.
+Reuse passing checks for unchanged revisions. Run affected checks again after
+repairs. Do not call the stack ready while a required check is failing or a
+planned capability is missing.
 
-## 7. Report
+## 5. Pause for the human
 
-Read `~/.agents/skills/technical-writing/SKILL.md` immediately before reporting, and again before any revised report. Explain what was delivered and how it was verified. State deviations and post-red test edits with their justification here and in `decisions.md`, not in the PR. Tell the human the topic is ready for `pr-review`.
+Set phase `in-review`, save the final handoffs, and commit the vault.
+Use `../wait-what/SKILL.md` to report PR links in order, delivered behavior,
+verification, deviations, test edits, and cleanup commit links or deslop no-ops.
+
+Pause here, even under orchestrate. Do not start review, simplification, merge,
+or deployment until the human continues. The pause happens after the complete
+stack, unless drift or a blocker required an earlier stop.
+
+## When not to use
+
+Use `design` when the implementation contract lacks approval.
+Use `review-fix` for approved fixes to review findings.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verify"
+  short_description: "Verify application behavior and prepare PR evidence"
+  default_prompt: "Use $verify to check this change against its acceptance criteria."

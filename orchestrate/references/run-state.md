@@ -1,38 +1,73 @@
 # Run state and resume
 
-## The `orchestration` block in `_state.md`
+Store the orchestration record in the topic's state. Topic approvals remain
+under the shared protocol; the orchestration record cannot supply them.
+
+## Run record
 
 ```yaml
 orchestration:
-  status: running          # running | ready | stopped
-  next_phase: design       # investigate | design | execute | pr-review | review-fix
-  settings:                # resolved from defaults.md, defaults.local.md, the request
-    models: {investigate: {model: gpt-6-astra, reasoning_effort: medium}, ...}
+  status: running # awaiting-human | awaiting-stack-review | ready | stopped
+  next_phase: grilling # investigate | design | execute | pr-review | review-fix
+  pending_decision: <brief, approach, design, drift, stack, or fix plan>
+  settings:
+    models: <resolved phase models and reasoning>
     max_fix_rounds: 3
     max_replans: 2
     max_nested_agents: 20
   fix_rounds_used: 0
   replans_used: 0
   nested_agents_used: 0
-  active_agent:            # ID while a worker runs, empty otherwise
+  active_agent: <worker ID while running>
+  active_phase: <phase while running>
 ```
 
-Start counters at zero only for a new run. Commit every counter change before launching work. Reuse saved settings on resume unless the user asks for a change.
+Initialize counters only for a new run. Preserve unrelated fields and historical
+approvals from existing topics. An old delegated approval cannot pass a new
+human checkpoint. Follow the shared protocol's existing-topic rules.
 
-## Per launch
+## Launch and return
 
-Before: save `next_phase`, the round or attempt, the starting revisions, and the agent ID in `active_agent`; commit. After: clear `active_agent`, record the outcome and the next phase, commit vault changes, then launch the next worker.
+Before launch, save the phase, attempt, starting revisions, and intended scope.
+After launch, save the worker ID before further coordination. Run one phase
+at a time. Missing capability or model is a reported limitation, never a
+silent substitute.
 
-## Counting
+Workers return evidence and questions. The parent saves and commits their
+artifacts, updates state, and sets `awaiting-human` when a decision is needed.
+Only the actual human response clears the pending decision.
 
-- A fix round is one `review-fix` run followed by `pr-review`. Three rounds allow an initial review plus three follow-up reviews.
-- Fix rounds and replans count across the whole topic, including replans and resumed sessions.
-- Nested helpers count across the run, not per phase.
+During execute, its coordinator owns state and vault commits. It records
+each active PR and worker under `execution`, then clears the worker after
+its handoff is reconciled. It returns helper usage to the parent.
+
+After execution completes, set `awaiting-stack-review` and `pending_decision:
+stack`. Leave `next_phase: pr-review`. Do not launch review until the human
+responds after seeing the stack, even if the original request included review.
+
+## Budgets
+
+A fix round is one approved fix pass followed by a fresh review. A replan
+revisits investigation or design after invalidating evidence. Count attempts
+across resumes. Increment only when starting the relevant work, not when
+waiting for approval.
+
+The helper allowance includes scouts, PR workers, and blind reviewers.
+The execute coordinator is the phase worker, not an additional nested helper.
+Reserve a slot before launching each helper. A budget limits work; it never
+permits skipping approval or combining PRs to avoid fresh workers.
 
 ## Resume
 
-1. Inspect `active_agent`, the artifacts, the branch, and any PR before continuing. Reuse completed work and existing PRs.
-2. Keep counters and approvals that still apply.
-3. Never launch a second writer while the recorded agent may still be running.
-4. An interrupted fix: reconcile its commits, review outcomes, and summary entry. Finish it inside the already-counted round, then run its review. An exhausted fix budget blocks a new round, not completion of the active one.
-5. Check whether a summary entry already exists before appending it again.
+Reconcile active agents, artifact revisions, branches, handoffs, and existing
+PRs before launching a replacement. Never start another writer while the old
+worker may still run. If the worker no longer exists, preserve partial work
+and pass it to a fresh replacement.
+
+Validate approval checksums. A pending decision stays pending until the human
+answers it. Reuse completed work and existing PRs. Avoid duplicate summary
+entries by checking phase, attempt, and revision.
+
+An interrupted fix can finish inside its already-counted round, followed by
+review. Exhaustion blocks another round, not completion of the active one.
+A changed PR base or head needs a fresh review before it can be reported ready.

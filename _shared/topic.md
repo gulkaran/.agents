@@ -1,176 +1,184 @@
 # Topic protocol
 
-A **topic** is one unit of work moving through the pipeline
-(investigate → design → execute → pr-review → review-fix). All of its
-artifacts live in one folder in the knowledge vault, and one state file tracks
-where it stands. Every workflow skill reads this protocol, resolves the topic
-first, and updates state last. Skills never require the human to pass file
-paths around; state on disk is the shared memory. Commit meaningful artifact
-changes under the versioning rules below, including drafts before a handoff.
+A topic holds one piece of work from grilling through review. Every phase
+reads this protocol and its state before acting. The human confirms the brief,
+chooses the approach, and approves the design before implementation starts.
 
 ## Topic folder
 
 ```
 <vault_path>/<project>/topics/<slug>/
-  _state.md         # phase, approvals, links: read first, write last
-  investigation.md  # synthesis and approach choice, written by investigate
-  research/         # supporting notes: <subject>.md, written by research
-  design.md         # draft or approved design, including feasibility appendix
-  feasibility/      # retained design experiments, including disproven ones
-  verification/     # execution/review evidence: screenshots, diagnostics, rerun details; never in the app repo
-  decisions.md      # append-only decision log
-  review/           # round-<n>.md per pr-review run; review-fix appends verdicts and outcomes
-  orchestration-summary.md # appended phase reports during orchestration
+  _state.md         # phase, approvals, PRs, and session log
+  brief.md          # intent, examples, constraints, and interview answers
+  investigation.md  # researched approaches and scope coverage
+  research/         # supporting source notes
+  design.md         # technical design, acceptance criteria, and PR plan
+  feasibility/      # retained experiments, including disproven assumptions
+  verification/     # screenshots, diagnostics, and rerun notes
+  decisions.md      # append-only human decisions and implementation deviations
+  execution/        # one handoff per PR
+  review/           # one round file per reviewed PR revision
+  orchestration-summary.md # phase reports when orchestrate is used
 ```
 
-- `<project>` is the repo name unless the human says otherwise.
-- `<slug>` is short and kebab-case, derived from the idea/issue title.
-- Create files and subfolders only when there is content to save.
-- `review/round-<n>.md` covers one reviewed revision and stands alone: no
-  historical sections, no superseding notes. The highest number is the current
-  review; earlier rounds are never edited.
+Read `config.md` and any `config.local.md` override for the vault location.
+Use the repository name as the project and a short kebab-case topic slug.
+Create files only when they have content. Evidence belongs in the vault,
+not the application repository.
 
-## Orchestrated runs
+Resolve a topic from the worktree's gitignored `.topic` file, then the branch
+recorded in topic state. Ask if neither identifies it. New work creates the
+topic and marker, using phase `grilling`. Use the current checkout; ask before
+creating a worktree. A standalone research topic may start at `investigating`,
+but research never supplies a missing approval.
 
-When the user requests `orchestrate`, follow
-[`orchestrate/SKILL.md`](../orchestrate/SKILL.md) for approvals, delegation,
-reports, and stopping conditions. Pass that file to every phase agent.
+## Brief handoff
 
-- Its approval rules replace the interactive gates in this protocol and the
-  phase skills for that run. Record decisions as delegated choices, not human replies.
-- Each phase still reads the technical-writing skill before reporting. Append
-  its normal report to
-  `orchestration-summary.md` instead of returning the report in chat.
-- The orchestrator commits vault changes after each phase. Phase agents make
-  the application commits required by `execute`, `deslop`, and `review-fix`.
-- Keep the topic `in-review` when automation finishes. Record the orchestration
-  outcome separately. A reviewed PR does not mean it has merged.
-- Standalone skill calls keep their existing approval and reporting rules.
+For coding work, use `../grill-me/SKILL.md` to settle intent, outcomes, scope,
+and constraints. Leave the implementation approach to investigation and design.
+Reuse existing answers when resuming. A standalone discussion needs no topic.
 
-## Document versions and commits
+Before the interview's final confirmation, save `brief.md` with the problem,
+intended users, desired outcomes, required capabilities with stable IDs and
+examples, exclusions, constraints, accepted trade-offs, and open research
+questions. Include a compact record of the human's answers, distinct from
+the agent's recommendations.
 
-These rules apply to documents and retained artifacts written in the configured
-vault. Find its Git root with `git -C <vault_path> rev-parse --show-toplevel`;
-run vault Git commands there, separately from the application repository. If
-the vault is not a Git repository or a commit fails, preserve the files and
-report the missing checkpoint instead of claiming the revision was saved in Git.
+Commit and present the brief for confirmation under the approval rules below.
+Record that confirmation against its checksum and set phase `investigating`.
+This is the interview's confirmation, not an additional approval.
 
-- Commit every meaningful creation or revision before handing back, waiting
-  for a decision, or replacing an approach. Group related documents, retained
-  artifacts, decisions, and the state update in one commit. Do not commit each
-  intermediate edit or create empty commits. Mark unapproved work as draft;
-  saving or committing it never grants approval.
-- Update the same document for the same subject. Git holds earlier versions;
-  do not create numbered copies. Keep the reasons for changed approaches in
-  `decisions.md`, with links to the evidence, even when the old text is replaced.
-  Checkpoint any unsaved earlier approach before replacing it.
-- Review the diff and stage only this task's files or hunks. Do not sweep in
-  another topic's changes or pre-existing edits. Leave unrelated staged work
-  intact and exclude it from the commit. The coordinating agent commits after
-  its workers finish; workers write assigned artifacts without committing.
-- Use `docs(<topic>): <what changed>` and explain why in the commit body when
-  the diff alone is insufficient. When the current session ID is reliably
-  available, include `Session: <id>` in the body. Omit it if unavailable; never
-  guess it. Store essential reasoning in the documents because a session link
-  may later be unavailable. Do not add co-author or AI attribution trailers.
-- Keep checkpoints as separate commits; do not amend or squash earlier
-  document revisions. Local vault commits are authorized by this workflow;
-  pushing or publishing the vault requires separate user authorization.
+## Approvals and transitions
 
-To compare approaches, inspect `git log --follow -- <document>` and
-`git diff <older-commit> <newer-commit> -- <document>`, using paths relative to
-the vault Git root. Read both versions with `git show <commit>:<path>` plus
-the corresponding `decisions.md` and evidence. Account for renames when the
-older path differs. This comparison must work without the original chat.
+| Phase | Required input | Human decision | Next phase |
+|---|---|---|---|
+| grilling | Idea and existing context | Confirm the saved brief | investigating |
+| investigating | Confirmed brief | Choose the saved approach and scope | designing |
+| designing | Chosen approach | Approve the saved technical design | design-approved |
+| executing | All three current approvals | None between PRs; stop for material drift | in-review after the whole stack exists |
 
-## Reopening investigation
+Save the draft and present it before requesting its decision. Use
+`../wait-what/SKILL.md` for checkpoint explanations. Clear approval in chat
+counts without a magic phrase. Silence, a recommendation, a saved draft, or
+a worker's decision never counts.
 
-Failed feasibility or a human-requested approach change can return an existing
-topic to investigation. This is an allowed backward transition, not a new topic.
+Record each approval in `_state.md` with the date, the human's decision, and
+the SHA-256 of the exact approved document. Use `shasum -a 256 <file>`.
+Keep approval metadata outside the document to avoid changing its checksum.
+Record the selected option in state and `decisions.md`; the investigation
+can retain the alternatives the human saw.
 
-1. Preserve the failed experiment and record what invalidated the approach in
-   `decisions.md`. Checkpoint the old documents if they have uncommitted changes.
-2. Mark any existing `design.md` as superseded/pending a new design and clear
-   `design_approved` in `_state.md`. Set phase `investigating`, append the reason
-   to the log, and commit the transition. Historical approval remains in Git
-   and the log; it cannot authorize the replacement design.
-3. Continue focused research in `research/<subject>.md` and revise
-   `investigation.md` in place, preserving prior constraints and evidence that
-   still apply. Commit meaningful revisions while the approach is pending.
-4. Record the human's new approach choice before moving to `designing`.
-   A revised design requires fresh explicit approval before execution resumes.
+Before advancing or resuming, compare approved checksums with current files.
+A mismatch pauses dependent work. Preserve prior approvals in Git and the
+decision log, then request approval of the revised document. Brief changes
+invalidate approach and design approval. Approach changes invalidate design
+approval. Design changes invalidate design approval. Supporting research and
+execution evidence do not invalidate unchanged documents by themselves.
 
-Supporting research alone preserves the current phase and approvals. If it
-invalidates the approved approach, raise the finding and use this transition
-through design or the human's direction; never silently continue execution.
+A human can explicitly waive a checkpoint for a particular run. Record the
+waiver and its scope as a waiver, never as approval. "Orchestrate", "continue",
+or an old delegated approval does not waive a checkpoint.
 
-When the human requests a contract revision without changing the chosen
-approach, return to `designing`, clear `design_approved`, mark the design as
-draft, and commit. Investigation need not repeat when its findings still hold.
+### Existing topics
 
-## Resolving the current topic
+Preserve persisted state and artifacts. A legacy `design_approved` date or
+singular `branch` and `pr` remains historical evidence, not a checksum approval.
+Resolve its existing PR before adding a `prs` entry. Do not recreate it.
+If history identifies the exact human-approved document revision and it still
+matches, carry that approval forward with its checksum and recorded provenance.
+Never infer brief or approach approval from a design date alone.
+For remaining implementation, reuse prior answers and evidence to prepare any
+missing brief or checkpoint. Ask only for missing or changed approvals. Never
+invent human approval or discard legacy records silently.
 
-In order:
+## State
 
-1. A `.topic` file at the worktree root (gitignored) containing the absolute
-   path of the topic folder.
-2. A branch named `<category>/<slug>` (or a branch recorded in some topic's
-   `_state.md`).
-3. Ask the human.
+Keep these fields in `_state.md` YAML frontmatter, followed by a Markdown
+session log. Resolve skill-relative paths against the file that names them.
 
-When a skill **creates** a topic it writes the `.topic` marker so every later
-session in that worktree self-locates. Name new branches `<category>/<slug>`.
-Use the current checkout; ask the human before creating a worktree.
-
-## `_state.md`
-
-```markdown
----
+```yaml
 topic: <slug>
 project: <project>
-phase: investigating | designing | design-approved | executing | in-review | done
-design_approved: <date, once given in chat>
-issue: <tracker URL, if any>
-branch: <git branch>
-pr: <PR URL, once open>
----
-
-## Log
-
-- <date> <skill>: <one line — what happened / phase change>
+phase: grilling # investigating | designing | design-approved | executing | in-review | done
+issue: <optional tracker URL>
+approvals:
+  brief: {date: <date>, sha256: <hash>, decision: <human confirmation>}
+  approach: {date: <date>, sha256: <hash>, decision: <chosen option and scope>}
+  design: {date: <date>, sha256: <hash>, decision: <human approval>}
+prs:
+  - id: pr-1
+    branch: <branch>
+    base: <base branch>
+    depends_on: []
+    status: planned # implementing | open | blocked
+    url: <once open>
+    head: <verified commit>
+    cleanup_commits: []
+    handoff: execution/pr-1.md
+execution:
+  active_pr: <PR ID while implementing>
+  active_agent: <worker ID while running>
 ```
 
-Rules:
+Omit records until they exist. PR IDs come from the approved design. Record
+a deslop no-op in the handoff, rather than making an empty cleanup commit.
+Append one log line per session or transition. A PR stack being ready does
+not mean it has merged. Set `done` only on the human's confirmation.
 
-- Read `_state.md` **first**. If the phase doesn't match the skill being
-  invoked (e.g. `execute` without `design-approved`), say so and stop — the
-  human can explicitly override. The reopening and design revision transitions
-  described above are explicit exceptions.
-- Approvals are given **in chat** ("approved") and recorded here with a date.
-  A recorded approval is what downstream skills trust.
-- Append one log line per session or phase change. The log is for humans.
+For review, identify the PR and its base and head in each
+`review/round-<n>.md`. Pick the latest round for that PR, not another stack
+member. Review-fix appends verdicts and outcomes to the selected round.
+Never replace an earlier review's findings or history.
 
-## `decisions.md`
+## Revisions and drift
 
-Append-only. One entry per decision, including mid-execution drift:
+Preserve the old documents and evidence before revising them. Append the
+decision, reason, and affected scope to `decisions.md`. Mark deliberate
+deviations explicitly.
 
-```markdown
-## <date> — <short decision title>
+- A changed goal returns to `grilling`.
+- An invalid approach or failed feasibility returns to `investigating`.
+- A changed implementation contract within the chosen approach returns to
+  `designing`.
 
-- **Decision:** what was chosen.
-- **Why:** the reasoning, in one or two lines.
-- **Deliberate deviation:** yes/no — set yes when this knowingly departs from
-  industry-standard practice or from the approved design.
-```
+Clear the affected approvals and commit the transition. Retain unaffected
+requirements, completed PRs, and disproven experiments. Reapproval concerns
+the changed document and invalidated downstream checkpoints.
 
-This file is the context that keeps later phases honest: pr-review's context
-pass reads it and marks findings that conflict with a recorded choice.
+During execution, minor implementation details can change with a recorded
+reason. Stop affected work for changed acceptance criteria, public contracts,
+dependencies, security, storage or migration plans, workers or jobs, rollout
+requirements, PR boundaries, or a disproven design assumption. Present the
+consequence and options; wait for the human. A worker reports drift to its
+coordinator and returns without deciding on the human's behalf.
 
-## Drift policy (during execute)
+## Ownership and commits
 
-- **Minor drift** — implementation detail differs from design but no
-  acceptance criterion, public interface, or dependency changes: record it in
-  `decisions.md` and continue.
-- **Medium+ drift** — an acceptance criterion, public interface, dependency,
-  or anything security-relevant changes, or a design assumption turns out
-  false: **stop**, raise it in chat with the options, and wait for the human.
+The coordinator owns topic state, approvals, and vault commits. Workers write
+assigned artifacts and return handoffs without committing the vault. PR workers
+own their application commits. Standalone phase sessions act as coordinator.
+When a delegated phase reaches a human decision, it returns the draft and
+questions. The coordinator performs that phase's presentation and approval
+steps. Delegation changes who presents the decision, never who makes it.
+
+Find the vault Git root with `git -C <vault_path> rev-parse --show-toplevel`.
+Commit meaningful drafts, revisions, evidence, decisions, and state before
+waiting or handing off. Use `docs(<topic>): <what changed>`. Stage only this
+topic's changes, preserving unrelated staged work. Do not amend or squash
+earlier document checkpoints. If a commit fails, retain the files and report
+the missing Git checkpoint; a checksum can still identify an approved file.
+Publishing the vault needs separate authorization.
+
+Revise the same document for the same subject. Git holds previous versions;
+do not create numbered copies. Keep reasons for changes in `decisions.md`.
+
+Application red, green, cleanup, and any human-requested simplification commits
+remain separate throughout PR preparation and review. Never amend, squash, or
+fixup cleanup into implementation. No empty cleanup commits and no AI attribution.
+
+## Orchestration
+
+`../orchestrate/SKILL.md` coordinates the same approvals and drift policy.
+It presents reports in chat and saves them in the vault. It cannot approve
+for the human. Execution uses one fresh worker per PR and pauses after the
+full stack exists. Review starts only after the human continues from that pause.

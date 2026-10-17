@@ -1,0 +1,4 @@
+interface:
+  display_name: "TDD"
+  short_description: "Build behavior in small test-first cycles"
+  default_prompt: "Use $tdd to implement the agreed behavior one failing test and passing implementation at a time."

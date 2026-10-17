@@ -1,50 +1,82 @@
 ---
 name: orchestrate
-description: Take an issue or task through investigate, design, execute, pr-review, and a bounded review-fix loop with a fresh agent per phase, no human gates, and phase reports saved in the vault. Use when the user says "orchestrate", "run the whole workflow", or "take this to a reviewed PR". Returns the reviewed PR.
+description: Coordinate grilling, investigation, design, and a complete PR stack with human approvals and fresh workers. Use for "orchestrate" or "run the whole workflow". Pause after the stack exists before continuing to review.
 ---
 
 # Orchestrate
 
-Run the pipeline end to end with the human's approvals delegated to the run. The parent agent owns state, handoffs, and vault commits; one fresh worker per phase owns the research, code, tests, and report. Budgets bound the loop so a stuck review never runs forever.
+Coordinate the workflow while the human owns intent, approach, and design
+decisions. Save reports and handoffs so a fresh worker can continue without
+the conversation. Never substitute an agent's choice for human approval.
 
-Invoke with `$orchestrate <issue or task>`. Add `skip investigation` when research exists. Model overrides are optional: `use Astra for execute`.
+## 1. Resolve the run
 
-## 1. Set up the run
+Read `../_shared/config.md`, `../_shared/topic.md`,
+[defaults](references/defaults.md), and [run state](references/run-state.md).
+Resolve the repository and topic, then reconcile saved state before launching
+work. Preserve approvals only when their document checksums still match.
 
-1. Read `../_shared/config.md` (plus `config.local.md`), `../_shared/topic.md`, and [defaults](references/defaults.md), which says how overrides resolve.
-2. Resolve repository and topic. Fetch linked issues and comments with the tracker recipe. Reuse a matching topic or create one on a `<category>/<slug>` branch.
-3. Read `_state.md` before writing it. Log scope, delegated approval, resolved settings, and any investigation skip, and add the `orchestration` block from [run state](references/run-state.md). On resume, follow that file's resume rules before launching anything.
+Existing research can be reused. A request to skip investigation does not
+supply a missing approach choice.
 
-## 2. Delegate each phase
+## 2. Establish the brief
 
-- One fresh agent per phase, including every review and fix round, on the phase's model and reasoning effort, with no parent transcript (`fork_turns: none` where available).
-- Brief it per [worker brief](references/worker-brief.md). It runs only its phase and returns a handoff or a replan request, never the next phase.
-- Save launch state per [run state](references/run-state.md) before and after every worker, and commit vault changes between phases. Phases run one at a time; never two writers at once.
-- Nested helpers (scouts, the blind reviewer) count against `max_nested_agents`. Record each before launch with an explicit model, defaulting to the phase model.
-- A missing tool or model is a reported limitation, never a silent substitute or a phase done in the parent.
+Run `../grill-me/SKILL.md` in the coordinating conversation. Save the brief
+and get the human's confirmation before investigation. Reuse an already
+confirmed, unchanged brief.
 
-## 3. Decide in the human's place
+The parent owns questions, approval records, topic state, and vault commits.
+Workers gather evidence and prepare proposals.
 
-- Pick the best-supported approach and reasonable answers to open design questions. Record assumptions and alternatives in the normal artifacts as delegated choices.
-- Approve the design only after its feasibility evidence is saved: a passing spike, or the design skill's recorded reason that none was needed. Set `design_approved` and note the approval came from this run.
-- Failed feasibility or a material design change: preserve evidence, clear approval, increment `replans_used`, use the reopening or revision transition, and rerun with a fresh agent. Stop with the evidence when `max_replans` would be exceeded.
-- Never drop acceptance criteria or relabel a defect as a trade-off to clear review. Contract changes need a recorded reason and the same design and review checks.
+## 3. Coordinate investigation and design
 
-## 4. Run the sequence
+Launch a fresh worker per phase with no inherited conversation, using
+[the worker brief](references/worker-brief.md). Save its report, verify claims,
+and present the proposal through `../wait-what/SKILL.md`.
 
-1. `investigate`, unless skipped. Its agent records the chosen approach and sets `designing`.
-2. `design`. On a skip, set `designing` and hand it the issue and supplied research.
-3. `execute`. It deslops the branch and opens PRs through `opening-a-pr` itself.
-4. `pr-review` on every PR. Its `review/round-<n>.md` records base and head revisions, unresolved Must fix IDs, check results, and gaps.
-5. Blockers left and budget left: increment `fix_rounds_used`, run `review-fix` with its plan saved but not gated, then a fresh `pr-review` that rechecks rejected findings too. Repeat. A finding only a human can close stays open; a Must fix of that kind stops the run.
-6. Finish when the latest review covers the current revisions, finds no unresolved blocker, and required checks pass. Optional improvements go in the report, not another round.
+Pause for the human to choose the investigation approach. Then run design,
+including its feasibility work, and pause for approval of the technical
+contract. Save each decision under the topic protocol.
 
-Failing required checks are blockers. A PR changed after its review is unreviewed until reviewed again. Budget exhausted with blockers left: `status: stopped`.
+If evidence invalidates a choice, preserve it and use the revision transition.
+Do not answer open product questions for the human. Return unresolved choices
+with evidence and a recommendation.
 
-## 5. Preserve each report
+## 4. Build the complete stack
 
-Workers read `../technical-writing/SKILL.md`, then append the report the skill would have given the human to `orchestration-summary.md` in the worker brief's format. Earlier entries stay; corrections are appended. The parent chat gets brief progress, never pasted reports or approval requests.
+After all three approvals, launch `../execute/SKILL.md` as the execution
+coordinator. It launches one fresh worker per PR and owns execution state
+until it returns. Only one coordinator writes topic state at a time.
 
-## 6. Return the result
+Pass the resolved execute model to its PR workers. Follow the dependency
+order without approval pauses between PRs. Stop for material drift, failed
+required checks, or a missing capability.
 
-Set status `ready` or `stopped`, log, and commit the vault. The topic stays `in-review` while a PR exists. Return PR links, what works, verification results, fix rounds used, and the summary path. If stopped, name the blockers or the missing capability; an incomplete review is never clean. Merging, deploying, and publishing the vault are outside this workflow.
+Execute runs deslop on each PR in separate cleanup commits. It never invokes
+code simplification.
+
+## 5. Pause after execution
+
+Record status `awaiting-stack-review` after the whole stack exists and required
+checks pass. Keep the topic `in-review`. Present ordered PR links, behavior,
+verification, deviations, and cleanup commits, then wait.
+
+Even "take this to a reviewed PR" includes this pause. Do not launch review
+or fixes before the human continues from it.
+
+## 6. Continue review when requested
+
+Run `pr-review` on each current PR revision. Present findings before
+`review-fix`; that skill's human approval still applies unless the human
+explicitly authorizes the specific fix plan.
+
+Use fresh review and fix workers within the saved budgets. Recheck changed
+revisions. Never drop acceptance criteria to clear review. Stop when required
+checks fail, a human decision is needed, or the budget is exhausted.
+
+Record `ready` only when current reviews have no unresolved blockers and
+required checks pass. Merging, deployment, and vault publication are separate.
+
+## When not to use
+
+Invoke an individual phase when only that phase is wanted.

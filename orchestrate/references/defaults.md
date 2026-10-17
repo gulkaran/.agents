@@ -1,7 +1,7 @@
 # Orchestration defaults
 
-These settings apply only to `orchestrate` and the agents it launches.
-Edit each phase's model and reasoning effort here.
+These settings apply to orchestrate and its workers. Grilling stays in the
+coordinating conversation on the session model.
 
 ```yaml
 orchestration:
@@ -16,13 +16,16 @@ orchestration:
   max_nested_agents: 20
 ```
 
-- A fix round is one `review-fix` run, followed by `pr-review`.
-- A replan revisits investigation or design after failed feasibility or design drift.
-- `max_nested_agents` limits the total helpers across the run, not helpers per phase.
-  Scouts and the pr-review blind reviewer count; 20 covers a run with four review rounds.
-- Per-machine overrides belong in `defaults.local.md` beside this file. That file
-  is optional and gitignored. Use the same YAML structure with only the changed fields.
-- Apply overrides by field. Use this file, then `defaults.local.md`, then the
-  user's request. Keep unspecified values.
-- Save resolved settings in the topic's `_state.md`. Reuse them when resuming
-  unless the user requests a change.
+The execute model applies to the execute coordinator and each PR worker.
+Scouts use the shared scout configuration unless explicitly overridden.
+
+A fix round is an approved review-fix pass followed by review. A replan
+revisits investigation or design after drift or failed feasibility. The
+helper allowance counts scouts, PR workers, and blind reviewers across the run.
+
+Apply overrides by field: this file, optional gitignored `defaults.local.md`,
+then the human's request. Preserve unspecified values. Save resolved settings
+in topic state and reuse them on resume unless the human changes them.
+
+These settings do not alter the three human approvals or the pause after the
+full PR stack. A budget or model choice cannot delegate a human decision.

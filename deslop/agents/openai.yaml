@@ -1,6 +1,6 @@
 interface:
   display_name: "Deslop"
-  short_description: "Remove agent artifacts and reflexive code patterns from a branch"
-  default_prompt: "Use $deslop to remove local-testing docs, screenshots, probe scripts, and code slop from this branch before opening the PR."
+  short_description: "Clean each PR without behavior changes, in its own commit"
+  default_prompt: "Use $deslop to remove scratch artifacts and redundant code, preserving behavior in a separate cleanup commit."
 policy:
   allow_implicit_invocation: true

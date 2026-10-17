@@ -1,28 +1,52 @@
 # Worker brief
 
-What the parent passes to every phase agent, and what comes back.
+Pass enough approved context for a fresh worker to perform one phase.
 
-## Pass
+## Input
 
-- The phase skill path, such as `~/.agents/skills/execute/SKILL.md`.
-- `~/.agents/skills/orchestrate/SKILL.md`: its delegated approvals replace the phase skill's human gates for this run.
-- Topic folder path and repository path.
-- Task scope and the delegated approval statement.
-- Relevant artifact paths: `investigation.md`, `design.md`, the latest `review/round-<n>.md`.
-- Round or attempt number, and for review phases the base and head revisions.
-- The phase model and reasoning effort, and the nested-helper allowance left.
+- The phase skill, this file, and the shared topic protocol.
+- Repository and topic paths, assigned scope, and resolved model settings.
+- The confirmed brief and relevant investigation, design, decisions, and evidence.
+- Approval checksums and the human's actual choices.
+- Attempt number and the remaining helper allowance.
+- For review or fixes, PR identity, base and head, and its latest review round.
 
-Tell the worker:
+Launch with no inherited conversation. Tell the worker to perform only its
+phase and return without starting the next phase.
 
-- Run only this phase. Return instead of launching the next one.
-- Write vault artifacts without committing them; the parent commits after the phase.
-- Make the application commits the phase requires (execute's red and green commits, deslop's cleanup commit, review-fix's fix commits).
-- Record decisions as delegated choices, not human replies.
+## Phase ownership
+
+Investigation and design workers gather evidence, write draft artifacts, and
+return `awaiting-human` with the proposal and unresolved choices. They do not
+ask another agent to approve, record approval themselves, or advance state.
+The parent presents the proposal and records the human's response.
+
+The execute worker is a coordinator. It verifies approvals and follows its PR
+worker contract. While it runs, it owns execution state and vault commits.
+The orchestrator waits for its return before editing that state. PR workers
+make application commits and write handoffs without committing the vault.
+
+Review and fix workers write their assigned reports without committing the
+vault. A fix worker returns its proposed plan before making changes unless
+the parent supplies the human's approval of that plan. App commits remain
+separate by purpose.
 
 ## Report
 
-Append to `orchestration-summary.md` under a heading with phase, round or attempt, date, and model, followed by artifact links and the reviewed revision where relevant. Include what the skill would have told the human: findings and chosen approach, design reasoning and feasibility, implementation results, review findings, fix plans and outcomes. Keep `investigation.md`, `design.md`, `decisions.md`, and the current review round current; the summary collects reports and does not replace them.
+Return the outcome, proposal or result, artifact paths, unresolved questions,
+verification status, and the next required action. Include PR identities and
+revisions when applicable. Distinguish human choices from recommendations.
 
-## Return
+The parent appends the report to `orchestration-summary.md` with phase,
+attempt, date, and artifact links, then presents the decision-relevant content
+in chat. The summary does not replace the brief, investigation, design, or
+per-PR execution handoffs.
 
-Outcome, artifact paths, PR links, relevant revisions, blocker IDs, verification status, and the next phase or a concrete failure reason. Nothing else: the report itself goes to `orchestration-summary.md`.
+## Pauses
+
+Valid outcomes include `awaiting-human`, `blocked`, `complete`, and
+`stack-created`. A worker completion does not imply approval. Material drift
+returns to the parent with evidence and options.
+
+After `stack-created`, the parent presents the full stack and waits for the
+human before launching review. No worker may bypass that pause.

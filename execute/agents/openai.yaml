@@ -1,6 +1,6 @@
 interface:
   display_name: "Execute"
-  short_description: "TDD slices, evidence in the vault, desloped branch, automatic PRs"
-  default_prompt: "Use $execute to implement the approved design in TDD slices, verify it, deslop the branch, and open the PRs."
+  short_description: "Fresh worker per PR, then pause after the full stack"
+  default_prompt: "Use $execute to build the approved PR stack with tests first and separate deslop commits, then pause."
 policy:
   allow_implicit_invocation: false

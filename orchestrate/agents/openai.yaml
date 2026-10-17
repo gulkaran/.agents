@@ -1,4 +1,4 @@
 interface:
   display_name: "Orchestrate"
-  short_description: "Take an issue to a reviewed PR with phase agents"
-  default_prompt: "Use $orchestrate to take this issue through implementation and review."
+  short_description: "Coordinate three approvals, then build the full PR stack"
+  default_prompt: "Use $orchestrate to confirm my brief, approach, and design, then build the full PR stack and pause."

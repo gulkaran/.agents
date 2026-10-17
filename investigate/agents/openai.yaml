@@ -1,6 +1,6 @@
 interface:
   display_name: "Investigate"
-  short_description: "Interactive research phase for an idea or issue"
-  default_prompt: "Use $investigate to research this idea and bring me tiered findings and approach options."
+  short_description: "Research a confirmed brief and choose the full scope"
+  default_prompt: "Use $investigate to research my confirmed brief and present an approach and complete scope for my choice."
 policy:
   allow_implicit_invocation: false

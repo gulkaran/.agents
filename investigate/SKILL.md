@@ -1,91 +1,75 @@
 ---
 name: investigate
-description: Interactive investigation of an idea or issue. Scouts gather the facts, a grilling session settles the product and scope decisions with the human, and the human chooses the approach. Writes investigation.md to the topic folder. Use when starting work, revisiting an approach, or picking up an issue that isn't yet fully specified.
+description: Research a confirmed brief and present an approach and complete scope for the human to choose. Use for "investigate this", exploring an implementation approach, or revisiting a topic after new evidence.
 disable-model-invocation: true
 ---
 
 # Investigate
 
-Turn an idea or issue into a human-chosen approach. Scouts do the reading,
-you do the synthesis, and the human makes every product and scope decision.
-No production code changes in this phase.
+Turn the confirmed brief into a researched approach the human chooses.
+Account for every requested capability so scope cannot disappear during research.
+Make no production code changes.
 
-Read first: `~/.agents/skills/_shared/config.md`,
-`~/.agents/skills/_shared/topic.md`.
+## 1. Read the brief
 
-## 1. Resolve the topic
+Read `../_shared/config.md` and `../_shared/topic.md`. Resolve the topic and
+check its brief approval. If missing, use `../grill-me/SKILL.md` to prepare
+and confirm the brief from existing context before continuing.
 
-Follow the topic protocol: resolve or create the topic folder and write the
-`.topic` marker. New work: set phase `investigating` and log the session.
-Existing topic: read `_state.md` first and use the reopening transition when
-revisiting an approach. A tracker issue: fetch its body and comments with the
-tracker recipes and link it in `_state.md`.
+Read `brief.md`, existing decisions, and linked issue comments. Reuse settled
+answers. A changed goal uses the topic protocol's revision transition.
 
-## 2. Frame
+## 2. Gather evidence
 
-Restate the goal in one or two lines: what we are trying to achieve and what
-"done" means. If the goal itself is ambiguous, ask one specific question now.
+Split factual questions by code area or source. Launch read-only scouts under
+`../_shared/scout.md` for independent questions. Give them the brief's relevant
+requirements and unknowns, repository path, and specific questions.
 
-## 3. Send scouts
+Research current behavior, callers, persisted data, external contracts,
+constraints, and prior art. Use primary online sources when external facts
+matter. Verify claims you rely on against the code or cited source.
 
-Split what you need to know into factual questions: where the work lives,
-what it touches, the current user journey and its consumers, constraints,
-prior art. Group them by the area of the codebase they share and launch one
-scout per area in a single batch, following
-`~/.agents/skills/_shared/scout.md`. Keep questions that need judgment, or
-that depend on each other, for yourself.
+Save supporting findings in `research/<subject>.md`. Separate established
+facts, assumptions, and things that could not be checked.
 
-Scouts read; they do not decide. Verify any scout claim you build on against
-the working tree before it reaches the human.
+## 3. Resolve new decisions
 
-## 4. Grill the human while scouts run
+Ask focused follow-up questions when evidence exposes a product decision.
+Explain the evidence and consequence first. Do not restart the interview or
+silently replace a requirement because it is inconvenient.
 
-Run a grilling session, following `~/.agents/skills/grilling/SKILL.md`, on
-the decisions only the human can make: who this serves, which problem
-matters, what success means, scope, acceptable trade-offs. Ask the whole
-frontier whose prerequisites are settled, each question with options and your
-recommended answer. A question that depends on a scout still running waits
-for that scout; the rest of the frontier does not.
+A new constraint that changes the brief needs the human's confirmation
+through the topic protocol. Detailed implementation choices belong to design.
 
-- Facts are your job. Never ask the human for anything a scout can look up.
-- Do not invent questions. If exploration answers everything, say so.
-- Stop when nothing left could change the approach. Detailed design choices
-  belong to `design`.
+## 4. Propose the approach
 
-## 5. Synthesize and present approaches
+Write `investigation.md` with the current behavior, recommended approach,
+credible alternatives, trade-offs, and remaining uncertainties. Include a
+capability list that accounts for each brief requirement as included,
+proposed for deferral, or unresolved. A deferral needs the human's choice.
 
-Combine scout evidence and the human's answers. Separate established
-requirements, recommendations, and open choices.
+Use one concrete example to explain the change:
 
-Read `~/.agents/skills/teach/SKILL.md` and
-`~/.agents/skills/technical-writing/SKILL.md` immediately before reporting,
-including revised reports. Use `teach` to explain the issue and recommended
-approach before asking the human to choose.
+> Today, cancelling a delivery only hides it from the screen. The sender can
+> still send it. The proposed approach makes cancellation prevent deliveries
+> that have not started. Cancelling a delivery already in progress stays
+> outside this proposal unless you choose otherwise.
 
-Explain what happens today, what goes wrong, and why it matters through one
-concrete example. Reuse that example to show what the recommended approach
-changes. List what the approach will do at a high level, including behavior
-it must preserve and anything surprising. Explain the intended outcomes;
-leave implementation mechanics to `design`.
+Explain behavior to preserve and surprising consequences. Flag known costs
+such as a likely migration, but leave the technical contract to design.
+One credible approach is enough; do not invent alternatives.
 
-Present credible alternatives with trade-offs and a recommendation. One
-obvious way: say so and present only it. Never manufacture options.
+## 5. Present and record the choice
 
-**The human picks the approach.** A recommendation alone is not a choice.
+Save and commit the pending report before asking. Read
+`../wait-what/SKILL.md` and explain the proposal, full scope, exclusions, and
+open choices in chat. The human chooses the approach and scope.
 
-## 6. Record
+Record that choice in `decisions.md` and the approval in `_state.md`, bound
+to the report's checksum. Set phase `designing` and commit the checkpoint.
+A recommendation or research result cannot supply this approval.
 
-Before waiting for the approach choice, save `investigation.md` with the
-choice marked pending and commit under the topic protocol. Put supporting
-source research in `research/<subject>.md`.
+## When not to use
 
-On the human's choice:
-
-- `investigation.md`: the report, every grilling round (question, recommended
-  answer, the human's answer), the chosen approach and why, remaining
-  uncertainties, and an appendix of evidence, paths, and commands.
-- `decisions.md`: append the approach choice and its reasoning.
-- `_state.md`: set phase `designing`, one log line.
-- Commit all three together. On a repeat investigation, revise the same
-  `investigation.md` and explain why the approach changed.
-- Tell the human the topic is ready for `design`.
+Use `grill-me` to establish intent. Use `research` for a supporting factual
+question that does not choose or change the workflow's approach.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Browser verification"
+  short_description: "Choose browser CLIs for verification and diagnostics"
+  default_prompt: "Use $browser to inspect the running app and capture useful verification evidence."

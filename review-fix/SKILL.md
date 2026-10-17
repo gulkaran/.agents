@@ -13,7 +13,7 @@ Read first: `~/.agents/skills/_shared/config.md`,
 
 ## 1. Gather findings
 
-Resolve the topic and load `design.md` and `decisions.md`. Collect findings from the highest-numbered `review/round-<n>.md` and from the PR's unresolved review threads:
+Resolve the topic and target PR, then load `design.md` and `decisions.md`. Collect findings from that PR's latest `review/round-<n>.md` and unresolved review threads. Never use another stack member's latest round:
 
 ```bash
 gh api graphql -f query='{ repository(owner: "<owner>", name: "<repo>") {
@@ -41,10 +41,11 @@ Wait for the human to approve the plan. They may drop, defer, or adjust items.
 
 ## 4. Implement
 
-- One commit per fix: `fix(review): <finding> — <what changed>`.
-- Execute's rules apply. Never weaken a test; a fix that changes behavior beyond its finding is drift, recorded or raised per the drift policy.
+- One commit per fix: `fix(review): <finding>, <what changed>`.
+- Follow `../tdd/SKILL.md` for behavior fixes and the shared drift policy. Do not launch execute or rebuild the stack. Never weaken a test or silently change behavior beyond the approved finding.
 - Run the relevant tests. Nothing is pushed red.
 - Fixes add no docs, screenshots, or scratch files to the repo. Evidence goes to the topic's `verification/` folder.
+- Run deslop on the updated PR diff after fixes pass. Any cleanup gets its own commit. Preserve earlier cleanup and simplification commits; never fold them into a fix.
 
 ## 5. Leave the trail
 
