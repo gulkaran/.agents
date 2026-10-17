@@ -6,70 +6,64 @@ disable-model-invocation: true
 
 # Investigate
 
-Turn the confirmed brief into a researched approach the human chooses.
-Account for every requested capability so scope cannot disappear during research.
-Make no production code changes.
+Research the confirmed brief and present an approach for the human to choose.
+Account for every requested capability. Make no production code changes.
 
 ## 1. Read the brief
 
 Read `../_shared/config.md` and `../_shared/topic.md`. Resolve the topic and
-check its brief approval. If missing, use `../grill-me/SKILL.md` to prepare
-and confirm the brief from existing context before continuing.
+check brief approval. If missing, use `../grill-me/SKILL.md` to prepare and
+confirm it from existing context.
 
-Read `brief.md`, existing decisions, and linked issue comments. Reuse settled
-answers. A changed goal uses the topic protocol's revision transition.
+Read the brief, decisions, and linked issue comments. Reuse settled answers.
+Use the topic protocol's revision transition for a changed goal.
 
 ## 2. Gather evidence
 
-Split factual questions by code area or source. Launch read-only scouts under
-`../_shared/scout.md` for independent questions. Give them the brief's relevant
-requirements and unknowns, repository path, and specific questions.
+Group factual questions by code area or source. Launch read-only scouts under
+`../_shared/scout.md` for independent questions, supplying relevant requirements,
+unknowns, repository path, and questions.
 
 Research current behavior, callers, persisted data, external contracts,
-constraints, and prior art. Use primary online sources when external facts
-matter. Verify claims you rely on against the code or cited source.
+constraints, and prior art. Check claims against code or cited primary sources.
+Use current online sources for external facts that matter.
 
-Save supporting findings in `research/<subject>.md`. Separate established
-facts, assumptions, and things that could not be checked.
+Save findings in `research/<subject>.md`, separating facts, assumptions, and
+what could not be checked.
 
 ## 3. Resolve new decisions
 
-Ask focused follow-up questions when evidence exposes a product decision.
-Explain the evidence and consequence first. Do not restart the interview or
-silently replace a requirement because it is inconvenient.
-
-A new constraint that changes the brief needs the human's confirmation
-through the topic protocol. Detailed implementation choices belong to design.
+When evidence raises a product decision, explain the evidence and consequence,
+then ask a focused question. Reuse the interview's answers; do not silently replace a
+requirement. A constraint that changes the brief needs confirmation under the
+topic protocol. Leave detailed implementation choices to design.
 
 ## 4. Propose the approach
 
-Write `investigation.md` with the current behavior, recommended approach,
-credible alternatives, trade-offs, and remaining uncertainties. Include a
-capability list that accounts for each brief requirement as included,
-proposed for deferral, or unresolved. A deferral needs the human's choice.
-
-Use one concrete example to explain the change:
-
-> Today, cancelling a delivery only hides it from the screen. The sender can
-> still send it. The proposed approach makes cancellation prevent deliveries
-> that have not started. Cancelling a delivery already in progress stays
-> outside this proposal unless you choose otherwise.
-
-Explain behavior to preserve and surprising consequences. Flag known costs
-such as a likely migration, but leave the technical contract to design.
+Write `investigation.md` with current behavior, the recommendation, credible
+alternatives, trade-offs, and uncertainties. Account for each brief requirement
+as included, proposed for deferral, or unresolved. The human decides deferrals.
 One credible approach is enough; do not invent alternatives.
+
+Explain the change with a concrete example:
+
+> Today, cancelling a delivery only hides it. The sender can still send it.
+> Cancellation would prevent deliveries that have not started. Cancelling a delivery
+> already in progress remains outside scope unless you choose otherwise.
+
+Describe behavior to preserve, surprising consequences, and likely costs such
+as a migration. Leave the technical contract to design.
 
 ## 5. Present and record the choice
 
-Save and commit the pending report before asking. Read
-`../wait-what/SKILL.md` and explain the proposal, full scope, exclusions, and
-open choices in chat. The human chooses the approach and scope.
+Save and commit the report. Use `../wait-what/SKILL.md` to explain the proposal,
+full scope, exclusions, and open choices in chat. Wait for the human's choice
+of approach and scope.
 
-Record that choice in `decisions.md` and the approval in `_state.md`, bound
-to the report's checksum. Set phase `designing` and commit the checkpoint.
-A recommendation or research result cannot supply this approval.
+Record the choice in `decisions.md` and the checksum approval in `_state.md`.
+Set phase `designing` and commit the checkpoint under the topic protocol.
 
 ## When not to use
 
-Use `grill-me` to establish intent. Use `research` for a supporting factual
-question that does not choose or change the workflow's approach.
+Use `grill-me` to establish intent, or `research` for a factual question that
+does not choose or change the workflow's approach.

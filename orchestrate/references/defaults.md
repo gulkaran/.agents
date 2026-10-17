@@ -19,13 +19,8 @@ orchestration:
 The execute model applies to the execute coordinator and each PR worker.
 Scouts use the shared scout configuration unless explicitly overridden.
 
-A fix round is an approved review-fix pass followed by review. A replan
-revisits investigation or design after drift or failed feasibility. The
-helper allowance counts scouts, PR workers, and blind reviewers across the run.
+Count budgets as defined in [run state](run-state.md#budgets).
 
 Apply overrides by field: this file, optional gitignored `defaults.local.md`,
 then the human's request. Preserve unspecified values. Save resolved settings
 in topic state and reuse them on resume unless the human changes them.
-
-These settings do not alter the three human approvals or the pause after the
-full PR stack. A budget or model choice cannot delegate a human decision.

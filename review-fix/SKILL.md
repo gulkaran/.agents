@@ -6,14 +6,18 @@ disable-model-invocation: true
 
 # Review-fix
 
-Close the loop on review findings and leave the trail on the PR. Every finding gets a verdict, every valid one gets its own fix commit, and every thread ends with a reply and a resolution a later reader can follow without this chat.
+Verify each finding, get approval for the fix plan, and commit each fix
+separately. Reply to review threads with the outcome and leave unresolved
+human decisions open.
 
 Read first: `~/.agents/skills/_shared/config.md`,
 `~/.agents/skills/_shared/topic.md`.
 
 ## 1. Gather findings
 
-Resolve the topic and target PR, then load `design.md` and `decisions.md`. Collect findings from that PR's latest `review/round-<n>.md` and unresolved review threads. Never use another stack member's latest round:
+Resolve the topic and target PR. Read `design.md`, `decisions.md`, that PR's
+latest `review/round-<n>.md`, and its unresolved review threads. Select the
+round for this PR, not another stack member:
 
 ```bash
 gh api graphql -f query='{ repository(owner: "<owner>", name: "<repo>") {
@@ -35,7 +39,10 @@ Never fix an unverified finding, and never create an artifact to close one. A de
 
 ## 3. Propose and wait
 
-Read `~/.agents/skills/technical-writing/SKILL.md` immediately before reporting. Present verified issues, their impact, and the proposed fix, blockers first; summarize rejected findings by reason. Append every verdict to that round file under `## Verdicts`, log in `_state.md`, and commit the vault before waiting. That checkpoint approves nothing.
+Read `~/.agents/skills/technical-writing/SKILL.md` immediately before reporting.
+Present verified issues, impact, and proposed fixes, with blockers first.
+Summarize rejected findings by reason. Append every verdict under `## Verdicts`
+in the selected round, log in `_state.md`, and commit the vault before waiting.
 
 Wait for the human to approve the plan. They may drop, defer, or adjust items.
 
@@ -47,7 +54,7 @@ Wait for the human to approve the plan. They may drop, defer, or adjust items.
 - Fixes add no docs, screenshots, or scratch files to the repo. Evidence goes to the topic's `verification/` folder.
 - Run deslop on the updated PR diff after fixes pass. Any cleanup gets its own commit. Preserve earlier cleanup and simplification commits; never fold them into a fix.
 
-## 5. Leave the trail
+## 5. Record outcomes
 
 After pushing:
 
@@ -56,7 +63,10 @@ After pushing:
 - **Needs the human.** Reply with what it needs from a person and leave the thread unresolved.
 - **Round-file-only finding.** Record the outcome in the round file.
 
-Append every outcome to the round file under `## Outcomes`; never edit an earlier round. Log in `_state.md`; set phase `done` only when the human confirms nothing remains. Commit review outcomes, decisions, verification, and state together.
+Append outcomes under `## Outcomes` in the selected round without changing
+earlier rounds. Log in `_state.md` and set phase `done` only when the human
+confirms nothing remains. Commit outcomes, decisions, verification, and state
+together.
 
 Reread the technical-writing skill before the final handoff. Say what was fixed, whether verification passed, and what still needs attention.
 

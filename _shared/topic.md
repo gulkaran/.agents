@@ -32,6 +32,8 @@ topic and marker, using phase `grilling`. Use the current checkout; ask before
 creating a worktree. A standalone research topic may start at `investigating`,
 but research never supplies a missing approval.
 
+Create `.topic` at the worktree root containing the topic folder's absolute path, and add `/.topic` to the local exclude file (`git rev-parse --git-path info/exclude`), never to `.gitignore`.
+
 ## Brief handoff
 
 For coding work, use `../grill-me/SKILL.md` to settle intent, outcomes, scope,

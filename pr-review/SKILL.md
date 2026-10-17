@@ -30,11 +30,9 @@ gh api user --jq .login
 
 ## 2. Blind review
 
-Launch one fresh subagent on the session model. Give it the diff range, the
-PR description, and `references/blind-review.md`. Give it nothing from the
-topic folder: no `brief.md`, `design.md`, `decisions.md`, or `investigation.md`. It
-reads the diff, the touched files, callers and callees, and the tests, and
-returns numbered findings in that file's format.
+Launch one fresh subagent on the session model with the diff range, PR
+description, and `references/blind-review.md`. That reference defines its
+inspection and report. Give it no topic documents.
 
 ## 3. Context pass (your PR only)
 
@@ -63,11 +61,9 @@ finding to close by creating one.
 
 ## 4. Report
 
-Read `~/.agents/skills/technical-writing/SKILL.md` immediately before
-reporting. Use the output format in `references/blind-review.md`: what the
-change does, findings in Must fix, Should fix, and Nice to have with stable
-numbers, a verdict, and what you could not check. Step 3 annotations appear
-on their findings.
+Read `~/.agents/skills/technical-writing/SKILL.md` immediately before reporting.
+Use the format in `references/blind-review.md`, with step 3 annotations on
+their findings.
 
 - Your PR: write the next `review/round-<n>.md` in the topic folder: base
   and head, findings with annotations, verification, and what you could not

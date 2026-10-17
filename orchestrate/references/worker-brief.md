@@ -42,11 +42,6 @@ attempt, date, and artifact links, then presents the decision-relevant content
 in chat. The summary does not replace the brief, investigation, design, or
 per-PR execution handoffs.
 
-## Pauses
-
-Valid outcomes include `awaiting-human`, `blocked`, `complete`, and
-`stack-created`. A worker completion does not imply approval. Material drift
-returns to the parent with evidence and options.
-
-After `stack-created`, the parent presents the full stack and waits for the
-human before launching review. No worker may bypass that pause.
+Use outcome `awaiting-human`, `blocked`, `complete`, or `stack-created`.
+Report material drift with evidence and options. The parent handles approval
+and the stack pause under the shared topic protocol.

@@ -7,10 +7,8 @@ reports; the caller decides.
 
 ## Launch
 
-- One scout per area. Group the questions that share the same files, module,
-  or source into one scout, three to five questions at most, so the reading
-  is done once. Each agent pays a fixed cost to orient itself before it
-  reads anything useful; twenty one-question scouts pay it twenty times.
+- Group questions about the same files, module, or source into one scout,
+  with at most three to five questions, to avoid repeated reading.
 - Split when questions touch different areas, or when one question is large
   enough to fill a context on its own. Launch the scouts in a single batch.
 - Give it this file, the numbered questions, the repository or source path,

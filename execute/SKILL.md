@@ -12,11 +12,9 @@ the human. Material drift interrupts execution before the affected work proceeds
 
 ## 1. Check the contract
 
-Before any tool call or repository inspection, follow
-[`../_shared/verification.md`](../_shared/verification.md): ask **Is this work or
-personal?** and wait for the human's answer. An explicit answer in this request
-or supplied by the caller for this same run satisfies the gate. Never infer it
-from the repository or machine. Pass the confirmed context to every worker.
+Before any tool call or inspection, follow [the verification context gate](../_shared/verification.md).
+Ask **Is this work or personal?** unless the human's answer for this run is
+already supplied. Wait for the answer and pass it to every worker.
 
 Read `../_shared/config.md` and `../_shared/topic.md`. Resolve the topic and
 verify all three approval checksums. Read the brief, investigation, design,
@@ -29,11 +27,9 @@ Initialize missing PR entries from the approved design and set phase
 
 ## 2. Launch a PR worker
 
-Follow [the PR worker contract](references/pr-worker.md). Launch a fresh agent
-with no inherited conversation for each PR. Pass the approved artifacts,
-assigned PR scope, repository path, and completed dependency handoffs.
-Resolve profile and evidence storage under the confirmed work/personal context.
-Pass the profile path or its absence and a distinct evidence directory per PR.
+Read [the PR worker contract](references/pr-worker.md) and supply its inputs.
+Resolve the app profile and a distinct evidence directory per PR under the
+confirmed context. Launch a fresh agent with no inherited conversation per PR.
 
 Use the session model unless the user or orchestrator specifies another.
 Run workers sequentially in dependency order, with one application writer.
@@ -50,12 +46,10 @@ Verify the worker's branch, base, commits, PR URL, and reported checks.
 Read its `execution/<pr-id>.md`, update the PR entry, and commit vault changes.
 Pass the verified handoff to workers that depend on it.
 
-A worker uses `../tdd/SKILL.md`, commits green, runs `../deslop/SKILL.md`,
-then launches a fresh verification agent using `../verify/SKILL.md` on the final
-revision. After verification passes, it opens its PR through
-`../opening-a-pr/SKILL.md` with the verification summary and inspected screenshots.
-Deslop runs on every PR's own diff and makes a separate commit when it changes
-anything. Never launch code simplification automatically.
+Check that the worker followed the contract's sequence: TDD, committed green
+implementation, separate deslop cleanup, fresh verification of the final
+revision, then PR creation with inspected evidence. Never launch code
+simplification automatically.
 
 Apply the shared drift policy. Return material questions to the human with
 their consequence and options. A failed required check or unavailable verification

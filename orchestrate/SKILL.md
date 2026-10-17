@@ -5,9 +5,8 @@ description: Coordinate grilling, investigation, design, and a complete PR stack
 
 # Orchestrate
 
-Coordinate the workflow while the human owns intent, approach, and design
-decisions. Save reports and handoffs so a fresh worker can continue without
-the conversation. Never substitute an agent's choice for human approval.
+Coordinate the human-approved workflow with fresh workers. Save reports and
+handoffs so each worker can continue without the conversation.
 
 ## 1. Resolve the run
 
@@ -24,9 +23,6 @@ supply a missing approach choice.
 Run `../grill-me/SKILL.md` in the coordinating conversation. Save the brief
 and get the human's confirmation before investigation. Reuse an already
 confirmed, unchanged brief.
-
-The parent owns questions, approval records, topic state, and vault commits.
-Workers gather evidence and prepare proposals.
 
 ## 3. Coordinate investigation and design
 
@@ -48,12 +44,9 @@ After all three approvals, launch `../execute/SKILL.md` as the execution
 coordinator. It launches one fresh worker per PR and owns execution state
 until it returns. Only one coordinator writes topic state at a time.
 
-Pass the resolved execute model to its PR workers. Follow the dependency
-order without approval pauses between PRs. Stop for material drift, failed
-required checks, or a missing capability.
-
-Execute runs deslop on each PR in separate cleanup commits. It never invokes
-code simplification.
+Pass the resolved execute model to its PR workers. Follow execute's dependency
+order, drift and verification stops, and separate cleanup commits. Do not pause
+for routine approval between PRs or invoke code simplification.
 
 ## 5. Pause after execution
 

@@ -6,71 +6,66 @@ disable-model-invocation: true
 
 # Design
 
-Map the chosen behavior to the system changes that implement it.
-Make storage, background work, and rollout consequences visible before the
-human approves implementation. Save the contract in `design.md`.
+Explain how the system will implement the chosen behavior. Save the technical
+contract in `design.md`, including storage, background work, and rollout
+consequences, for human approval.
 
 ## 1. Check the chosen approach
 
 Read `../_shared/config.md` and `../_shared/topic.md`. Resolve the topic and
-verify the brief and approach approvals. Missing checkpoints return to their
-phase; a small task can have short documents, but still needs the decisions.
+verify brief and approach approvals. Return to the relevant phase for missing
+checkpoints. Small tasks can use short documents but still need the decisions.
 
-Read the brief, investigation, and decisions. Use the revision transition
-before changing an approved design.
+Read the brief, investigation, and decisions. Use the topic protocol's revision
+transition before changing an approved design.
 
-## 2. Prove the riskiest assumption
+## 2. Test the riskiest assumption
 
-Identify the assumption that could invalidate the approach. Test it with a
-focused experiment under the topic's `feasibility/` folder. Record the
-assumption, rerun instructions, result, and limitations beside its files.
-Spike code is evidence, not production implementation.
+Test the assumption most likely to invalidate the approach with a focused
+experiment in `feasibility/`. Save its assumption, rerun instructions, result,
+and limitations beside the files. Keep experiment code out of production.
 
-If nothing needs a spike, explain why. Preserve failed experiments. A disproven
-approach returns to investigation through the topic protocol.
+If no experiment is needed, explain why. Preserve failed experiments and return
+a disproven approach to investigation under the topic protocol.
 
 ## 3. Draft the technical contract
 
 Write `design.md` with:
 
-- Behavior and acceptance criteria linked to the brief's requirement IDs.
-- The current flow and proposed flow, with a small diagram when useful.
-- Applicable changes to tables, migrations, APIs, workers, jobs, dependencies,
-  permissions, and deployment order. Explain purpose, consequences, and
-  alternatives for significant choices.
-- Data preservation, failure handling, and recovery where the change needs them.
+- Behavior and acceptance criteria linked to brief requirement IDs.
+- Current and proposed flows, with a small diagram when useful.
+- Changes to tables, migrations, APIs, workers, jobs, dependencies, permissions,
+  and deployment order where applicable. Explain significant choices, their
+  purpose, consequences, and alternatives.
+- Data preservation, failure handling, and recovery where needed.
 - The fewest coherent PRs, each with an ID, scope, dependencies, base strategy,
-  and what works after it lands. Split for a concrete review or rollout benefit.
-- Verifiable implementation slices and test boundaries. State what each
-  boundary catches and misses, including migration tests when applicable.
+  and what works after it lands. Split for a review or rollout benefit.
+- Verifiable implementation slices and test boundaries, including migration
+  tests where needed. State what each boundary catches and misses.
 - Feasibility evidence, unresolved risks, and deliberate deviations.
 
-Keep scope within the chosen approach. A newly necessary capability goes back
-for a scope decision. Avoid file-by-file pseudocode.
+Stay within the chosen scope. Return newly necessary capabilities for a scope
+decision. Describe mechanisms rather than listing technologies or writing
+file-by-file pseudocode:
 
-Example:
+> A new table stores scheduled deliveries. A worker claims them when due.
+> This requires a migration and a worker process. The design must prevent
+> retries from sending a delivery twice.
 
-> We will store scheduled deliveries in a new table. A worker will claim
-> deliveries when they become due. This needs a migration and a worker process.
-> Retries can send a delivery twice, so the design must specify how duplicate
-> sends are prevented.
-
-Describe the mechanism chosen for this feature, not just a list of technologies.
-Explicitly state when storage or background processing is unchanged, so absence
-from the report is not mistaken for an oversight.
+State explicitly when storage or background processing is unchanged.
 
 ## 4. Present the design for approval
 
-Save and commit the draft before asking. Read `../wait-what/SKILL.md`.
-Explain what happens, how the main components implement it, the operational
-consequences, feasibility results, and the PR plan. Make unresolved choices
-explicit. Do not bury a migration or new worker in an appendix.
+Save and commit the draft. Use `../wait-what/SKILL.md` to explain behavior,
+components, operational consequences, feasibility results, and the PR plan.
+Make unresolved choices explicit. Explain migrations and new workers in the
+main presentation.
 
-Revise until the human approves the technical contract. Record approval
-against the document checksum, set phase `design-approved`, and commit state
-and decisions. Approval includes the proposed test boundaries.
+Revise until the human approves the contract and its test boundaries. Record
+the checksum approval, set phase `design-approved`, and commit state and
+decisions under the topic protocol.
 
 ## When not to use
 
-Use `investigate` when the approach is unsettled. Use `execute` to implement
-the approved contract. Publish tracker issues through `to-tickets` if requested.
+Use `investigate` for an unsettled approach, `execute` for implementation, or
+`to-tickets` to publish tracker issues when requested.
