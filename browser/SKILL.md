@@ -5,9 +5,9 @@ description: Choose and use Playwright CLI or Chrome DevTools CLI for live appli
 
 # Browser verification guidance
 
-First follow [the context gate](../_shared/verification.md). Ask work or personal
-and wait before any tool call unless the caller supplies the human's answer for
-this run. Use the caller's application profile and evidence directory.
+Use the caller's application profile and evidence directory. If no evidence
+directory is supplied, resolve one using [the verification protocol](../_shared/verification.md).
+Browser use does not require a work/personal classification.
 
 ## Choose the tool for the question
 

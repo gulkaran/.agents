@@ -14,10 +14,9 @@ dependencies, and verified handoffs from completed PRs. Include feasibility
 evidence, known gaps, and any model override. Pass these instructions as the
 worker's task; do not ask it to invoke execute recursively.
 
-Include the human's work/personal answer for this run, selected app profile or
-its absence, and absolute evidence directory from `../../_shared/verification.md`.
-Without that answer, return to the coordinator before any tool call. Never
-infer the context or reuse an answer from an earlier run.
+Include the absolute evidence directory from `../../_shared/verification.md`
+and any known app profile path. Profile discovery happens during verification
+and does not require a work/personal answer.
 
 ## Work
 
@@ -25,7 +24,8 @@ infer the context or reuse an answer from an earlier run.
    and verify approval checksums. Create or select the assigned branch from
    the verified base. Never discard unrelated changes to switch branches.
 2. Before implementation, capture relevant before evidence when tools allow,
-   using the app profile and `../../browser/SKILL.md` for browser applications.
+   using `../../verify/SKILL.md` in baseline-only mode to discover an app skill
+   or use the generic flow.
    Keep it in the supplied evidence directory and record the baseline revision.
    Read `../../tdd/SKILL.md`. Implement one behavior at a time, preserving red
    and green commits. Derive expected results from the approved examples.
@@ -45,11 +45,12 @@ infer the context or reuse an answer from an earlier run.
    Run `../../deslop/SKILL.md` against this PR's base, verify the cleanup, and
    keep its commit separate. Do not invoke code simplification.
 7. Launch a fresh verification agent with no inherited conversation. Give it
-   `../../verify/SKILL.md`, the confirmed work/personal answer, repository and
-   evidence paths, app profile or its absence, acceptance criteria, required
+   `../../verify/SKILL.md`, repository and evidence paths, any known app profile,
+   acceptance criteria, required
    checks and their existing results, base and final head, and before captures.
    Give it no authority to edit product code or tests, commit, or open PRs.
-   It reads the app skill when present and uses generic discovery otherwise.
+   It discovers and reads the app skill when present and uses generic discovery
+   otherwise.
    Wait for its results while keeping the checkout and app build unchanged.
    Missing delegation or a required failed/blocked check blocks completion.
    Repair failures in implementation, commit separately, repeat deslop as

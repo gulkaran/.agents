@@ -12,10 +12,6 @@ the human. Material drift interrupts execution before the affected work proceeds
 
 ## 1. Check the contract
 
-Before any tool call or inspection, follow [the verification context gate](../_shared/verification.md).
-Ask **Is this work or personal?** unless the human's answer for this run is
-already supplied. Wait for the answer and pass it to every worker.
-
 Read `../_shared/config.md` and `../_shared/topic.md`. Resolve the topic and
 verify all three approval checksums. Read the brief, investigation, design,
 decisions, and feasibility evidence.
@@ -28,8 +24,10 @@ Initialize missing PR entries from the approved design and set phase
 ## 2. Launch a PR worker
 
 Read [the PR worker contract](references/pr-worker.md) and supply its inputs.
-Resolve the app profile and a distinct evidence directory per PR under the
-confirmed context. Launch a fresh agent with no inherited conversation per PR.
+Supply a distinct evidence directory per PR using
+[the verification protocol](../_shared/verification.md). The verifier discovers
+the app skill at verification time. Launch a fresh agent with no inherited
+conversation per PR.
 
 Use the session model unless the user or orchestrator specifies another.
 Run workers sequentially in dependency order, with one application writer.

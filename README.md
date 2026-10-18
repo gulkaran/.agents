@@ -49,12 +49,12 @@ the affected approvals; completed PRs and earlier evidence remain available.
 Application history keeps red tests, green implementation, deslop, and any
 requested simplification separate throughout PR preparation and review.
 
-Execution and standalone verification ask **Is this work or personal?** before
-acting. The [verification protocol](_shared/verification.md) keeps personal app
-profiles in their repos and work profiles outside both app and shared skills
-repos. Child workers inherit the answer for the current run. Inspected evidence
-images are uploaded into PR descriptions with GitHub CLI, never committed just
-to provide an image URL.
+Execution uses `verify` at the verification stage to discover an app-specific
+skill or use generic discovery. Only creating or maintaining a verification
+skill asks **Is this work or personal?** to choose persistent storage. The
+[verification protocol](_shared/verification.md) defines discovery and evidence
+locations. Inspected evidence images are uploaded into PR descriptions with
+GitHub CLI, never committed just to provide an image URL.
 
 ## Setup
 

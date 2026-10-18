@@ -10,7 +10,7 @@ A PR description is a one-minute briefing for a reviewer with no context: what c
 ## 1. Check the branch before writing
 
 - Run `~/.agents/skills/deslop/SKILL.md` on this PR's diff if it has not covered the current changes. For a stack, use the assigned parent branch as the base. Preserve requested product artifacts.
-- If cleanup or another edit changes the verified content, return to verification for affected checks and captures before opening the PR. Carry the caller's confirmed work/personal context through that rerun.
+- If cleanup or another edit changes the verified content, return to verification for affected checks and captures before opening the PR. Carry the caller's app profile and evidence directory through that rerun.
 - Diff against the base and read every file. Describe the diff that exists, not the work you remember doing.
 - Keep red tests, green implementation, deslop, and any human-requested simplification in separate commits throughout PR preparation and review. Never amend, squash, or fixup cleanup into implementation.
 - No unrelated changes, generated noise, credentials, or AI attribution trailers.

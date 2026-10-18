@@ -5,9 +5,9 @@ description: Verify a change against its acceptance criteria using the real appl
 
 # Verify an application change
 
-First follow [the context gate](../_shared/verification.md). Ask work or personal
-and wait before any inspection or tool call unless the caller passes the human's
-answer for this run. Resolve profile and evidence storage only after that answer.
+Use [the verification protocol](../_shared/verification.md) for app-skill
+discovery and evidence storage. Running verification does not require a
+work/personal classification.
 
 ## Establish the scope
 
@@ -23,7 +23,8 @@ revision. Do not present an old build's capture as proof of the current head.
 
 ## Load the app skill or discover the setup
 
-If a profile exists in the chosen location, read its `SKILL.md`, feature index,
+Discover a matching app skill using the verification protocol. If one exists,
+read its `SKILL.md`, feature index,
 and feature files relevant to the change and its dependencies. Follow its launch,
 doctor, drive, evidence, and cleanup instructions. Cover the affected entry points
 the map lists. Report stale instructions without weakening expected behavior.

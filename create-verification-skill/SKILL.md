@@ -24,7 +24,7 @@ If the checkout doesn't build or start as-is, fix that first (or report it preci
 
 ## 2. Generate the skill
 
-Include the context gate and shared browser guidance in generated skills as specified by the storage protocol. Use the resolved evidence directory for captures, never the application repo. Record the proved application revision after the end-to-end proof in step 4 succeeds; until then, the profile is a draft.
+Include runtime discovery, evidence storage, and shared browser guidance in generated skills as specified by the storage protocol. Do not include the creation/maintenance work-or-personal question in their execution flow. Use the resolved evidence directory for captures, never the application repo. Record the proved application revision after the end-to-end proof in step 4 succeeds; until then, the profile is a draft.
 
 Write `<profile-dir>/SKILL.md` with YAML frontmatter (`name: verify-<app>` and a `description` that names the app, the surface, and when to reach for it: without frontmatter the skill never registers) and these sections, each grounded in what the interview actually found (no placeholders left):
 
