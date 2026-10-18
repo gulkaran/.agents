@@ -46,20 +46,37 @@ Write `design.md` with:
 
 Stay within the chosen scope. Return newly necessary capabilities for a scope
 decision. Describe mechanisms rather than listing technologies or writing
-file-by-file pseudocode:
-
-> A new table stores scheduled deliveries. A worker claims them when due.
-> This requires a migration and a worker process. The design must prevent
-> retries from sending a delivery twice.
+file-by-file pseudocode. Use existing codebase names and label proposed names
+as new. For storage changes, name the tables and fields, their meanings,
+relevant types or allowed values, and the code that writes and reads them.
+Explain defaults, constraints, or indexes when they affect behavior or safety.
 
 State explicitly when storage or background processing is unchanged.
 
 ## 4. Present the design for approval
 
-Save and commit the draft. Use `../wait-what/SKILL.md` to explain behavior,
-components, operational consequences, feasibility results, and the PR plan.
-Make unresolved choices explicit. Explain migrations and new workers in the
-main presentation.
+Save and commit the draft. In the main chat presentation, explain how each
+feature works, why the mechanism fits, and its data and operational consequences. Apply [technical-writing](../technical-writing/SKILL.md) for this explanation.
+
+Use the concrete names and detail required above. The human must be able to
+assess the implementation without opening `design.md`.
+
+For example:
+
+> Add new database field `browse_options.remote_scope` with values `country`, `region`, `local`,
+> and `unknown`. The normalizer writes it so city searches can include
+> country-wide remote jobs without reparsing descriptions on each request.
+> A migration adds the field. A resumable startup rebuild classifies existing
+> jobs from retained descriptions. This design pauses browsing during the
+> rebuild to prevent mixed old and new results.
+
+Distinguish schema changes from data rebuilds. Explain what happens to existing
+data, how interrupted work recovers, and which rollout consequences follow from
+the chosen implementation. Connect migrations and workers to the features they
+support instead of listing them as separate warnings.
+
+Include feasibility results and limits, the PR plan, test boundaries, and open
+choices.
 
 Revise until the human approves the contract and its test boundaries. Record
 the checksum approval, set phase `design-approved`, and commit state and
