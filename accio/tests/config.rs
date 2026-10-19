@@ -116,3 +116,17 @@ fn config_list_json_prints_an_object() {
     let parsed: serde_json::Value = serde_json::from_slice(&output).unwrap();
     assert_eq!(parsed, json!({"alpha": "first", "zeta": "last"}));
 }
+
+#[test]
+fn config_set_rejects_a_key_that_needs_quoting() {
+    let h = Harness::new();
+
+    h.accio()
+        .args(["config", "set", "bad key", "value"])
+        .assert()
+        .code(1)
+        .stdout("")
+        .stderr("accio: config key \"bad key\" must match ^[A-Za-z0-9_-]+$\n");
+
+    assert!(!h.config_path().exists());
+}

@@ -85,6 +85,24 @@ mod tests {
     }
 
     #[test]
+    fn keys_of_letters_digits_underscores_and_hyphens_are_valid() {
+        for key in ["vault", "tracker", "my-key_2", "A", "0"] {
+            validate_key(key).unwrap();
+        }
+    }
+
+    #[test]
+    fn keys_needing_quotes_are_rejected_with_the_rule() {
+        for key in ["", "foo bar", "foo.bar", "foo/bar", "caf\u{e9}"] {
+            let err = validate_key(key).unwrap_err();
+            assert_eq!(
+                err.to_string(),
+                format!("config key {key:?} must match ^[A-Za-z0-9_-]+$")
+            );
+        }
+    }
+
+    #[test]
     fn non_string_value_is_an_error_naming_the_key() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("config.toml");
