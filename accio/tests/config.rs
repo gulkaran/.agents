@@ -3,6 +3,7 @@ mod common;
 use std::fs;
 
 use common::Harness;
+use serde_json::json;
 
 #[test]
 fn config_set_creates_the_directory_and_file() {
@@ -76,4 +77,42 @@ fn config_get_vault_reads_the_value_written_by_vault_set() {
         .assert()
         .success()
         .stdout(format!("{}\n", canonical.display()));
+}
+
+#[test]
+fn config_list_prints_key_value_lines_sorted_by_key() {
+    let h = Harness::new();
+    let canonical = fs::canonicalize(h.vault.path()).unwrap();
+    h.accio().args(["config", "set", "zeta", "last"]).assert().success();
+    h.accio()
+        .args(["vault", "set"])
+        .arg(h.vault.path())
+        .assert()
+        .success();
+    h.accio().args(["config", "set", "alpha", "first"]).assert().success();
+
+    h.accio()
+        .args(["config", "list"])
+        .assert()
+        .success()
+        .stdout(format!("alpha: first\nvault: {}\nzeta: last\n", canonical.display()));
+}
+
+#[test]
+fn config_list_json_prints_an_object() {
+    let h = Harness::new();
+    h.accio().args(["config", "set", "zeta", "last"]).assert().success();
+    h.accio().args(["config", "set", "alpha", "first"]).assert().success();
+
+    let output = h
+        .accio()
+        .args(["config", "list", "--json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+
+    let parsed: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    assert_eq!(parsed, json!({"alpha": "first", "zeta": "last"}));
 }
