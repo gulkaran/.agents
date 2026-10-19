@@ -7,13 +7,26 @@ use std::io::{self, Write as _};
 use std::path::Path;
 use std::process;
 
-use anyhow::{Context as _, Result, anyhow};
+use anyhow::{Context as _, Result, anyhow, bail};
 
 /// The one key accio interprets. `vault set` writes it; `vault path` and the
 /// topic commands read it.
 pub const VAULT_KEY: &str = "vault";
 
 pub type Table = BTreeMap<String, String>;
+
+/// Accepts keys of ASCII letters, digits, underscores, and hyphens, which
+/// TOML writes without quotes.
+pub fn validate_key(key: &str) -> Result<()> {
+    let bare = !key.is_empty()
+        && key
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'-');
+    if !bare {
+        bail!("config key {key:?} must match ^[A-Za-z0-9_-]+$");
+    }
+    Ok(())
+}
 
 /// Reads the config file. A missing file is an empty table; a value that is
 /// not a string is an error naming its key.

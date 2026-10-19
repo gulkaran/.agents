@@ -25,6 +25,7 @@ fn set(ctx: &Context, key: String, value: String) -> Result<()> {
     if key == config::VAULT_KEY {
         bail!("vault is managed by accio vault set; run accio vault set <path>");
     }
+    config::validate_key(&key)?;
     let mut table = config::load(ctx.config_path())?;
     table.insert(key, value);
     config::save(ctx.config_path(), &table)
