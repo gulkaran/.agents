@@ -66,7 +66,7 @@ fn is_kebab_case(name: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
+    use std::path::{Path, PathBuf};
 
     use super::*;
 
@@ -157,5 +157,35 @@ mod tests {
             err.to_string(),
             "derived project \"\" is not kebab-case; pass --project <name>"
         );
+    }
+
+    #[test]
+    fn topic_is_parsed_from_the_last_four_path_components() {
+        let topic =
+            Topic::from_path(PathBuf::from("/vault/projects/agents/topics/accio-cli")).unwrap();
+        assert_eq!(topic.project, "agents");
+        assert_eq!(topic.slug, "accio-cli");
+        assert_eq!(
+            topic.path,
+            PathBuf::from("/vault/projects/agents/topics/accio-cli")
+        );
+    }
+
+    #[test]
+    fn paths_that_are_not_a_vault_topic_are_rejected() {
+        for path in [
+            "/vault/projects/agents/topics",
+            "/vault/projects/agents/accio-cli",
+            "/vault/notes/agents/topics/accio-cli",
+            "/vault/projects/agents/topics/accio-cli/design.md",
+            "projects/agents/topics/accio-cli",
+            "/",
+            "",
+        ] {
+            assert!(
+                Topic::from_path(PathBuf::from(path)).is_none(),
+                "{path:?} should not parse as a topic"
+            );
+        }
     }
 }
