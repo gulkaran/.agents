@@ -246,3 +246,27 @@ fn commit_with_a_clean_topic_exits_1_and_records_nothing() {
         "projects/agents/topics/other/brief.md"
     );
 }
+
+#[test]
+fn commit_with_a_topic_outside_a_repository_exits_1_with_hint() {
+    let h = Harness::new();
+    let topic = h.home.path().join("plain/projects/agents/topics/loose");
+    fs::create_dir_all(&topic).unwrap();
+    fs::write(topic.join("brief.md"), "brief\n").unwrap();
+    let topic = fs::canonicalize(&topic).unwrap();
+    fs::write(
+        h.work.path().join(".topic"),
+        format!("{}\n", topic.display()),
+    )
+    .unwrap();
+
+    h.accio_in(h.work.path())
+        .args(["commit", "-m", "nowhere"])
+        .assert()
+        .code(1)
+        .stdout("")
+        .stderr(format!(
+            "accio: {} is not inside a git repository; run git init in the vault root\n",
+            topic.display()
+        ));
+}
