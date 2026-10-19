@@ -58,8 +58,8 @@ GitHub CLI, never committed just to provide an image URL.
 
 ## Setup
 
-Run `./install.sh` in Bash from the source repository to link skills into
-`~/.agents/skills`. Set vault and tracker settings in
+The repository is cloned to `~/.agents`, and skills are discovered in place at
+`~/.agents/skills/*`. Set vault and tracker settings in
 [\_shared/config.md](_shared/config.md). Put machine overrides in the gitignored
 `_shared/config.local.md`.
 
