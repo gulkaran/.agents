@@ -35,6 +35,8 @@ pub enum VaultCommand {
 
 #[derive(Subcommand)]
 pub enum ConfigCommand {
+    /// Print the value stored under a key.
+    Get { key: String },
     /// Store a value under a key.
     Set { key: String, value: String },
 }
