@@ -3,6 +3,7 @@ mod common;
 use std::fs;
 
 use common::Harness;
+use serde_json::json;
 
 #[test]
 fn topic_current_outside_a_repository_exits_1_with_hint() {
@@ -362,4 +363,133 @@ fn topic_use_rejects_a_project_override_that_is_not_kebab_case_and_writes_nothin
 
     assert!(!h.vault.path().join("projects").exists());
     assert!(!h.work.path().join(".topic").exists());
+}
+
+fn topic_with_marker(h: &Harness, slug: &str) -> std::path::PathBuf {
+    h.accio()
+        .args(["vault", "set"])
+        .arg(h.vault.path())
+        .assert()
+        .success();
+    h.accio_in(h.work.path())
+        .args(["topic", "use", slug])
+        .assert()
+        .success();
+    fs::canonicalize(h.vault.path())
+        .unwrap()
+        .join("projects/agents/topics")
+        .join(slug)
+}
+
+#[test]
+fn topic_current_prints_key_value_lines_with_artifacts_in_canonical_order() {
+    let h = Harness::new();
+    let topic = topic_with_marker(&h, "accio-cli");
+    for dir in ["review", "verification", "feasibility", "research", "execution"] {
+        fs::create_dir(topic.join(dir)).unwrap();
+    }
+    for file in [
+        "decisions.md",
+        "design.md",
+        "investigation.md",
+        "brief.md",
+        "_state.md",
+    ] {
+        fs::write(topic.join(file), "").unwrap();
+    }
+
+    h.accio_in(h.work.path())
+        .args(["topic", "current"])
+        .assert()
+        .success()
+        .stdout(format!(
+            "project: agents\nslug: accio-cli\npath: {}\nartifacts: brief investigation design decisions research feasibility verification review\n",
+            topic.display()
+        ));
+}
+
+#[test]
+fn topic_current_lists_no_artifacts_for_an_empty_topic() {
+    let h = Harness::new();
+    let topic = topic_with_marker(&h, "accio-cli");
+
+    h.accio_in(h.work.path())
+        .args(["topic", "current"])
+        .assert()
+        .success()
+        .stdout(format!(
+            "project: agents\nslug: accio-cli\npath: {}\nartifacts:\n",
+            topic.display()
+        ));
+}
+
+#[test]
+fn topic_current_counts_only_artifacts_of_the_expected_kind() {
+    let h = Harness::new();
+    let topic = topic_with_marker(&h, "accio-cli");
+    fs::create_dir(topic.join("brief.md")).unwrap();
+    fs::write(topic.join("research"), "").unwrap();
+    fs::write(topic.join("design.md"), "").unwrap();
+
+    h.accio_in(h.work.path())
+        .args(["topic", "current"])
+        .assert()
+        .success()
+        .stdout(format!(
+            "project: agents\nslug: accio-cli\npath: {}\nartifacts: design\n",
+            topic.display()
+        ));
+}
+
+#[test]
+fn topic_current_path_prints_only_the_folder() {
+    let h = Harness::new();
+    let topic = topic_with_marker(&h, "accio-cli");
+    fs::write(topic.join("brief.md"), "").unwrap();
+
+    h.accio_in(h.work.path())
+        .args(["topic", "current", "--path"])
+        .assert()
+        .success()
+        .stdout(format!("{}\n", topic.display()));
+}
+
+#[test]
+fn topic_current_json_prints_an_object_with_the_artifact_list() {
+    let h = Harness::new();
+    let topic = topic_with_marker(&h, "accio-cli");
+    fs::write(topic.join("brief.md"), "").unwrap();
+    fs::write(topic.join("design.md"), "").unwrap();
+    fs::create_dir(topic.join("verification")).unwrap();
+
+    let output = h
+        .accio_in(h.work.path())
+        .args(["topic", "current", "--json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+
+    let parsed: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    assert_eq!(
+        parsed,
+        json!({
+            "project": "agents",
+            "slug": "accio-cli",
+            "path": topic.to_str().unwrap(),
+            "artifacts": ["brief", "design", "verification"],
+        })
+    );
+}
+
+#[test]
+fn topic_current_path_and_json_are_a_usage_error_together() {
+    let h = Harness::new();
+    topic_with_marker(&h, "accio-cli");
+
+    h.accio_in(h.work.path())
+        .args(["topic", "current", "--path", "--json"])
+        .assert()
+        .code(2);
 }
