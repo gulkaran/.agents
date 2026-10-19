@@ -1,6 +1,7 @@
 mod common;
 
 use std::fs;
+use std::path::{Path, PathBuf};
 
 use common::Harness;
 use serde_json::json;
@@ -178,7 +179,7 @@ fn topic_use_without_a_vault_exits_1_with_hint_and_writes_nothing() {
     assert!(!h.vault.path().join("projects").exists());
 }
 
-fn exclude_path(h: &Harness, dir: &std::path::Path) -> std::path::PathBuf {
+fn exclude_path(h: &Harness, dir: &Path) -> PathBuf {
     let printed = h.git(
         dir,
         &[
@@ -188,7 +189,7 @@ fn exclude_path(h: &Harness, dir: &std::path::Path) -> std::path::PathBuf {
             "info/exclude",
         ],
     );
-    std::path::PathBuf::from(printed.trim_end())
+    PathBuf::from(printed.trim_end())
 }
 
 fn count_marker_lines(text: &str) -> usize {
@@ -385,7 +386,7 @@ fn topic_use_rejects_a_project_override_that_is_not_kebab_case_and_writes_nothin
     assert!(!h.work.path().join(".topic").exists());
 }
 
-fn topic_with_marker(h: &Harness, slug: &str) -> std::path::PathBuf {
+fn topic_with_marker(h: &Harness, slug: &str) -> PathBuf {
     h.accio()
         .args(["vault", "set"])
         .arg(h.vault.path())
@@ -520,7 +521,7 @@ fn topic_current_path_and_json_are_a_usage_error_together() {
         .code(2);
 }
 
-fn vault_with_topics(h: &Harness) -> std::path::PathBuf {
+fn vault_with_topics(h: &Harness) -> PathBuf {
     h.accio()
         .args(["vault", "set"])
         .arg(h.vault.path())

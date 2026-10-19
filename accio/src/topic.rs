@@ -11,13 +11,13 @@ use serde::Serialize;
 use crate::atomic;
 
 /// The file at the git toplevel that holds the topic folder's absolute path.
-pub const MARKER: &str = ".topic";
+const MARKER: &str = ".topic";
 
 /// The exclude pattern that hides the marker at every worktree root.
 const EXCLUDE_LINE: &str = "/.topic";
 
 /// A topic folder in the vault, located by its project and slug.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Serialize)]
 pub struct Topic {
     pub project: String,
     pub slug: String,
@@ -100,21 +100,24 @@ pub fn ensure_exclude_line(exclude: &Path) -> Result<()> {
     if existing.lines().any(|line| line == EXCLUDE_LINE) {
         return Ok(());
     }
-    let appended = (|| {
-        if let Some(dir) = exclude.parent() {
-            fs::create_dir_all(dir)?;
-        }
-        let mut file = OpenOptions::new().append(true).create(true).open(exclude)?;
-        if !existing.is_empty() && !existing.ends_with('\n') {
-            file.write_all(b"\n")?;
-        }
-        file.write_all(format!("{EXCLUDE_LINE}\n").as_bytes())
-    })();
-    appended.with_context(|| format!("cannot write {}", exclude.display()))
+    let start_new_line = !existing.is_empty() && !existing.ends_with('\n');
+    append_exclude_line(exclude, start_new_line)
+        .with_context(|| format!("cannot write {}", exclude.display()))
+}
+
+fn append_exclude_line(exclude: &Path, start_new_line: bool) -> io::Result<()> {
+    if let Some(dir) = exclude.parent() {
+        fs::create_dir_all(dir)?;
+    }
+    let mut file = OpenOptions::new().append(true).create(true).open(exclude)?;
+    if start_new_line {
+        file.write_all(b"\n")?;
+    }
+    file.write_all(format!("{EXCLUDE_LINE}\n").as_bytes())
 }
 
 /// The shape every project name and slug must have.
-pub const NAME_RULE: &str = "^[a-z0-9]+(-[a-z0-9]+)*$";
+const NAME_RULE: &str = "^[a-z0-9]+(-[a-z0-9]+)*$";
 
 /// Rejects a typed name that is not kebab-case, naming what it was (`slug`
 /// or `project`) and the rule.

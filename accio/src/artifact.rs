@@ -2,13 +2,11 @@
 
 use std::path::Path;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Kind {
     File,
     Directory,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Artifact {
     pub name: &'static str,
     pub kind: Kind,
