@@ -143,7 +143,12 @@ fn topic_use_derives_a_lowercase_project_from_the_origin_repository() {
         .success();
     h.git(
         h.work.path(),
-        &["remote", "set-url", "origin", "https://github.com/Shopify/World.git"],
+        &[
+            "remote",
+            "set-url",
+            "origin",
+            "https://github.com/Shopify/World.git",
+        ],
     );
     let topic = fs::canonicalize(h.vault.path())
         .unwrap()
@@ -176,7 +181,12 @@ fn topic_use_without_a_vault_exits_1_with_hint_and_writes_nothing() {
 fn exclude_path(h: &Harness, dir: &std::path::Path) -> std::path::PathBuf {
     let printed = h.git(
         dir,
-        &["rev-parse", "--path-format=absolute", "--git-path", "info/exclude"],
+        &[
+            "rev-parse",
+            "--path-format=absolute",
+            "--git-path",
+            "info/exclude",
+        ],
     );
     std::path::PathBuf::from(printed.trim_end())
 }
@@ -265,7 +275,14 @@ fn topic_use_from_a_linked_worktree_shares_the_exclude_line_and_owns_its_marker(
     let worktree = h.home.path().join("wt");
     h.git(
         h.work.path(),
-        &["worktree", "add", "-q", worktree.to_str().unwrap(), "-b", "feature"],
+        &[
+            "worktree",
+            "add",
+            "-q",
+            worktree.to_str().unwrap(),
+            "-b",
+            "feature",
+        ],
     );
     let worktree = fs::canonicalize(&worktree).unwrap();
     h.accio_in(h.work.path())
@@ -281,7 +298,10 @@ fn topic_use_from_a_linked_worktree_shares_the_exclude_line_and_owns_its_marker(
 
     let exclude = exclude_path(&h, h.work.path());
     assert_eq!(exclude, exclude_path(&h, &worktree));
-    assert_eq!(count_marker_lines(&fs::read_to_string(&exclude).unwrap()), 1);
+    assert_eq!(
+        count_marker_lines(&fs::read_to_string(&exclude).unwrap()),
+        1
+    );
     assert_eq!(
         fs::read_to_string(h.work.path().join(".topic")).unwrap(),
         format!("{}\n", topics.join("first").display())
@@ -385,7 +405,13 @@ fn topic_with_marker(h: &Harness, slug: &str) -> std::path::PathBuf {
 fn topic_current_prints_key_value_lines_with_artifacts_in_canonical_order() {
     let h = Harness::new();
     let topic = topic_with_marker(&h, "accio-cli");
-    for dir in ["review", "verification", "feasibility", "research", "execution"] {
+    for dir in [
+        "review",
+        "verification",
+        "feasibility",
+        "research",
+        "execution",
+    ] {
         fs::create_dir(topic.join(dir)).unwrap();
     }
     for file in [

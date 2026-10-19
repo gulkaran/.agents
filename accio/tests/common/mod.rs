@@ -30,7 +30,12 @@ impl Harness {
         harness.init_repo(harness.work.path());
         harness.git(
             harness.work.path(),
-            &["remote", "add", "origin", "git@github.com:gulkaran/.agents.git"],
+            &[
+                "remote",
+                "add",
+                "origin",
+                "git@github.com:gulkaran/.agents.git",
+            ],
         );
         harness
     }

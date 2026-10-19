@@ -42,7 +42,12 @@ fn use_topic(ctx: &Context, slug: &str, project: Option<String>) -> Result<()> {
     fs::create_dir_all(&path).with_context(|| format!("cannot create {}", path.display()))?;
     let exclude = git::run(
         toplevel,
-        &["rev-parse", "--path-format=absolute", "--git-path", "info/exclude"],
+        &[
+            "rev-parse",
+            "--path-format=absolute",
+            "--git-path",
+            "info/exclude",
+        ],
     )?;
     topic::ensure_exclude_line(Path::new(&exclude))?;
     topic::write_marker(toplevel, &path)?;

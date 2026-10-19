@@ -131,9 +131,7 @@ pub fn validate_name(kind: &str, name: &str) -> Result<()> {
 /// before the kebab-case check, so a repository named `World` is project
 /// `world`; a name that still fails asks the caller to pass `--project`.
 pub fn derive_project(origin: Option<&str>, toplevel: &Path) -> Result<String> {
-    let from_origin = origin
-        .map(repository_name)
-        .filter(|name| !name.is_empty());
+    let from_origin = origin.map(repository_name).filter(|name| !name.is_empty());
     let derived = match from_origin {
         Some(name) => name,
         None => toplevel
@@ -153,10 +151,7 @@ pub fn derive_project(origin: Option<&str>, toplevel: &Path) -> Result<String> {
 fn repository_name(url: &str) -> String {
     let trimmed = url.trim_end_matches('/');
     let trimmed = trimmed.strip_suffix(".git").unwrap_or(trimmed);
-    let name = trimmed
-        .rsplit(['/', ':'])
-        .next()
-        .unwrap_or(trimmed);
+    let name = trimmed.rsplit(['/', ':']).next().unwrap_or(trimmed);
     name.trim_start_matches('.').to_string()
 }
 
@@ -217,7 +212,10 @@ mod tests {
         let toplevel = Path::new("/work/checkout");
         for (origin, expected) in [
             ("git@github.com:gulkaran/.agents.git", "agents"),
-            ("https://github.com/Shopify/infra-central.git", "infra-central"),
+            (
+                "https://github.com/Shopify/infra-central.git",
+                "infra-central",
+            ),
             ("https://github.com/Shopify/infra-central", "infra-central"),
             ("ssh://git@github.com/owner/repo", "repo"),
             ("https://github.com/owner/repo.git/", "repo"),
@@ -249,7 +247,10 @@ mod tests {
             derive_project(Some("https://github.com/Shopify/World.git"), toplevel).unwrap(),
             "world"
         );
-        assert_eq!(derive_project(None, Path::new("/work/World")).unwrap(), "world");
+        assert_eq!(
+            derive_project(None, Path::new("/work/World")).unwrap(),
+            "world"
+        );
     }
 
     #[test]
