@@ -2,10 +2,6 @@
 //! repository with one commit, and `git` and `accio` commands that never read
 //! the real user configuration or reach the network.
 
-// Each integration test binary compiles its own copy of this module and uses
-// only part of it, so the unused parts must not fail the build.
-#![allow(dead_code)]
-
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;

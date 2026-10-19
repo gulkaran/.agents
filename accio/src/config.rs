@@ -9,8 +9,7 @@ use std::process;
 
 use anyhow::{Context as _, Result, anyhow, bail};
 
-/// The one key accio interprets. `vault set` writes it; `vault path` and the
-/// topic commands read it.
+/// The one key accio interprets, written by `vault set`.
 pub const VAULT_KEY: &str = "vault";
 
 pub type Table = BTreeMap<String, String>;
