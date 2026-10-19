@@ -5,7 +5,7 @@ use std::fs;
 use std::io;
 use std::path::{Component, Path};
 
-use anyhow::{Context as _, Result, bail};
+use anyhow::{Context as _, Result, anyhow, bail};
 
 pub enum Kind {
     File,
@@ -72,6 +72,19 @@ pub const ALL: [Artifact; 8] = [
         path: "review",
     },
 ];
+
+/// The artifact called `name`, or an error listing the eight valid names.
+pub fn find(name: &str) -> Result<&'static Artifact> {
+    ALL.iter()
+        .find(|artifact| artifact.name == name)
+        .ok_or_else(|| {
+            let names: Vec<&str> = ALL.iter().map(|artifact| artifact.name).collect();
+            anyhow!(
+                "unknown artifact {name:?}; expected one of {}",
+                names.join(", ")
+            )
+        })
+}
 
 /// Accepts a `--name` that stays inside its directory artifact: relative,
 /// non-empty, and free of `..` components. The name is otherwise used

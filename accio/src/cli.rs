@@ -26,6 +26,13 @@ pub enum Command {
     /// Create, switch, and query the topic this checkout works on.
     #[command(subcommand)]
     Topic(TopicCommand),
+    /// Print the path of an artifact in the current topic, creating its
+    /// directory when missing and never a file.
+    Path {
+        /// One of brief, investigation, design, decisions, research,
+        /// feasibility, verification, review.
+        artifact: String,
+    },
 }
 
 #[derive(Subcommand)]
