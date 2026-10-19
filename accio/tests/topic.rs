@@ -292,3 +292,74 @@ fn topic_use_from_a_linked_worktree_shares_the_exclude_line_and_owns_its_marker(
     assert_eq!(h.git(h.work.path(), &["status", "--porcelain"]), "");
     assert_eq!(h.git(&worktree, &["status", "--porcelain"]), "");
 }
+
+#[test]
+fn topic_use_rejects_a_slug_that_is_not_kebab_case_and_writes_nothing() {
+    let h = Harness::new();
+    h.accio()
+        .args(["vault", "set"])
+        .arg(h.vault.path())
+        .assert()
+        .success();
+    let exclude = exclude_path(&h, h.work.path());
+
+    h.accio_in(h.work.path())
+        .args(["topic", "use", "Bad_Slug"])
+        .assert()
+        .code(1)
+        .stdout("")
+        .stderr("accio: slug \"Bad_Slug\" must match ^[a-z0-9]+(-[a-z0-9]+)*$\n");
+
+    assert!(!h.vault.path().join("projects").exists());
+    assert!(!h.work.path().join(".topic").exists());
+    assert_eq!(
+        count_marker_lines(&fs::read_to_string(&exclude).unwrap()),
+        0
+    );
+}
+
+#[test]
+fn topic_use_honors_the_project_override() {
+    let h = Harness::new();
+    h.accio()
+        .args(["vault", "set"])
+        .arg(h.vault.path())
+        .assert()
+        .success();
+    let topic = fs::canonicalize(h.vault.path())
+        .unwrap()
+        .join("projects/backlog/topics/cd-123-retries");
+
+    h.accio_in(h.work.path())
+        .args(["topic", "use", "cd-123-retries", "--project", "backlog"])
+        .assert()
+        .success()
+        .stdout(format!("created {}\n", topic.display()));
+
+    assert!(topic.is_dir());
+    assert!(!h.vault.path().join("projects/agents").exists());
+    assert_eq!(
+        fs::read_to_string(h.work.path().join(".topic")).unwrap(),
+        format!("{}\n", topic.display())
+    );
+}
+
+#[test]
+fn topic_use_rejects_a_project_override_that_is_not_kebab_case_and_writes_nothing() {
+    let h = Harness::new();
+    h.accio()
+        .args(["vault", "set"])
+        .arg(h.vault.path())
+        .assert()
+        .success();
+
+    h.accio_in(h.work.path())
+        .args(["topic", "use", "cd-123-retries", "--project", "Bad_Project"])
+        .assert()
+        .code(1)
+        .stdout("")
+        .stderr("accio: project \"Bad_Project\" must match ^[a-z0-9]+(-[a-z0-9]+)*$\n");
+
+    assert!(!h.vault.path().join("projects").exists());
+    assert!(!h.work.path().join(".topic").exists());
+}
