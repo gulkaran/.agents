@@ -1,4 +1,4 @@
-use anyhow::{Result, anyhow};
+use anyhow::{Result, anyhow, bail};
 
 use crate::cli::ConfigCommand;
 use crate::config;
@@ -21,6 +21,9 @@ fn get(ctx: &Context, key: &str) -> Result<()> {
 }
 
 fn set(ctx: &Context, key: String, value: String) -> Result<()> {
+    if key == config::VAULT_KEY {
+        bail!("vault is managed by accio vault set; run accio vault set <path>");
+    }
     let mut table = config::load(ctx.config_path())?;
     table.insert(key, value);
     config::save(ctx.config_path(), &table)
