@@ -67,3 +67,41 @@ pub const ALL: [Artifact; 8] = [
         path: "review",
     },
 ];
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn relative_names_without_parent_components_are_valid() {
+        for name in ["evidence.md", "screenshots/login.png", "a/b/c", "round-1.md"] {
+            validate_name(name).unwrap();
+        }
+    }
+
+    #[test]
+    fn empty_name_is_rejected() {
+        let err = validate_name("").unwrap_err();
+        assert_eq!(err.to_string(), "--name must not be empty");
+    }
+
+    #[test]
+    fn absolute_name_is_rejected() {
+        let err = validate_name("/tmp/evidence.md").unwrap_err();
+        assert_eq!(
+            err.to_string(),
+            "--name \"/tmp/evidence.md\" must be a relative path"
+        );
+    }
+
+    #[test]
+    fn name_with_parent_components_is_rejected() {
+        for name in ["../design.md", "a/../../b", "screenshots/.."] {
+            let err = validate_name(name).unwrap_err();
+            assert_eq!(
+                err.to_string(),
+                format!("--name {name:?} must not contain \"..\" components")
+            );
+        }
+    }
+}
