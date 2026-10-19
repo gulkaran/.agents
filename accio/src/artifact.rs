@@ -228,4 +228,28 @@ mod tests {
         fs::write(dir.path().join("round-12.md"), "").unwrap();
         assert_eq!(next_round(dir.path()).unwrap(), "round-13.md");
     }
+
+    #[test]
+    fn next_round_counts_past_the_u32_range() {
+        let dir = tempfile::tempdir().unwrap();
+        fs::write(dir.path().join("round-4294967295.md"), "").unwrap();
+        assert_eq!(next_round(dir.path()).unwrap(), "round-4294967296.md");
+        fs::write(dir.path().join("round-4294967296.md"), "").unwrap();
+        assert_eq!(next_round(dir.path()).unwrap(), "round-4294967297.md");
+    }
+
+    #[test]
+    fn next_round_after_the_highest_numberable_round_is_an_error() {
+        let dir = tempfile::tempdir().unwrap();
+        let last = dir.path().join("round-18446744073709551615.md");
+        fs::write(&last, "").unwrap();
+        let err = next_round(dir.path()).unwrap_err();
+        assert_eq!(
+            err.to_string(),
+            format!(
+                "{} is the highest round accio can number; rename or remove it",
+                last.display()
+            )
+        );
+    }
 }
