@@ -19,7 +19,9 @@ pub fn validate_name(kind: &str, name: &str) -> Result<()> {
 
 /// The default project name: the repository name from the `origin` URL, or
 /// the toplevel directory name when there is no `origin`, with leading dots
-/// dropped so `gulkaran/.agents` becomes `agents`.
+/// dropped so `gulkaran/.agents` becomes `agents`. The name is lowercased
+/// before the kebab-case check, so a repository named `World` is project
+/// `world`; a name that still fails asks the caller to pass `--project`.
 pub fn derive_project(origin: Option<&str>, toplevel: &Path) -> Result<String> {
     let from_origin = origin
         .map(repository_name)
@@ -31,7 +33,11 @@ pub fn derive_project(origin: Option<&str>, toplevel: &Path) -> Result<String> {
             .map(|name| name.to_string_lossy().trim_start_matches('.').to_string())
             .unwrap_or_default(),
     };
-    Ok(derived)
+    let name = derived.to_lowercase();
+    if !is_kebab_case(&name) {
+        bail!("derived project {name:?} is not kebab-case; pass --project <name>");
+    }
+    Ok(name)
 }
 
 /// The text after the last `/` or `:` of a remote URL, without a trailing `/`,
@@ -146,7 +152,7 @@ mod tests {
             err.to_string(),
             "derived project \"some_repo\" is not kebab-case; pass --project <name>"
         );
-        let err = derive_project(None, Path::new("/work/.")).unwrap_err();
+        let err = derive_project(None, Path::new("/")).unwrap_err();
         assert_eq!(
             err.to_string(),
             "derived project \"\" is not kebab-case; pass --project <name>"
