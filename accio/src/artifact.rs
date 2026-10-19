@@ -1,9 +1,11 @@
 //! The eight artifacts a topic folder can hold, in canonical order, and the
 //! rules for naming an entry under a directory artifact.
 
+use std::fs;
+use std::io;
 use std::path::{Component, Path};
 
-use anyhow::{Result, bail};
+use anyhow::{Context as _, Result, bail};
 
 pub enum Kind {
     File,
@@ -89,6 +91,43 @@ pub fn validate_name(name: &str) -> Result<()> {
         bail!("--name {name:?} must not contain \"..\" components");
     }
     Ok(())
+}
+
+/// The file name of the next review round: `round-<n>.md` where `n` is one
+/// more than the highest existing round, or `round-1.md` when `review` has
+/// none or does not exist. Only names of the form `round-<n>.md` with `n` a
+/// positive integer without leading zeros count; gaps are never filled, so
+/// the newest round always sorts last.
+pub fn next_round(review: &Path) -> Result<String> {
+    let entries = match fs::read_dir(review) {
+        Ok(entries) => entries,
+        Err(err) if err.kind() == io::ErrorKind::NotFound => return Ok(round_file(1)),
+        Err(err) => return Err(err).with_context(|| format!("cannot read {}", review.display())),
+    };
+    let mut highest = 0;
+    for entry in entries {
+        let entry = entry.with_context(|| format!("cannot read {}", review.display()))?;
+        if let Some(round) = round_number(&entry.file_name().to_string_lossy()) {
+            highest = highest.max(round);
+        }
+    }
+    Ok(round_file(highest + 1))
+}
+
+fn round_file(round: u32) -> String {
+    format!("round-{round}.md")
+}
+
+/// The `n` in `round-<n>.md` when the name has exactly that shape.
+fn round_number(name: &str) -> Option<u32> {
+    let digits = name.strip_prefix("round-")?.strip_suffix(".md")?;
+    let canonical = !digits.is_empty()
+        && !digits.starts_with('0')
+        && digits.bytes().all(|b| b.is_ascii_digit());
+    if !canonical {
+        return None;
+    }
+    digits.parse().ok()
 }
 
 #[cfg(test)]
