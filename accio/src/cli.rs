@@ -70,4 +70,13 @@ pub enum TopicCommand {
         #[arg(long)]
         json: bool,
     },
+    /// List every topic in the vault as project/slug lines.
+    List {
+        /// Only topics under this project.
+        #[arg(long)]
+        project: Option<String>,
+        /// Print a JSON array instead of project/slug lines.
+        #[arg(long)]
+        json: bool,
+    },
 }

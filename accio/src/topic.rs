@@ -6,6 +6,7 @@ use std::io::{self, Write as _};
 use std::path::{Component, Path, PathBuf};
 
 use anyhow::{Context as _, Result, bail};
+use serde::Serialize;
 
 use crate::atomic;
 
@@ -16,7 +17,7 @@ pub const MARKER: &str = ".topic";
 const EXCLUDE_LINE: &str = "/.topic";
 
 /// A topic folder in the vault, located by its project and slug.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Topic {
     pub project: String,
     pub slug: String,

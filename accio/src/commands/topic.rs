@@ -9,11 +9,13 @@ use crate::cli::TopicCommand;
 use crate::context::Context;
 use crate::git;
 use crate::topic;
+use crate::vault;
 
 pub fn run(ctx: &Context, command: TopicCommand) -> Result<()> {
     match command {
         TopicCommand::Use { slug, project } => use_topic(ctx, &slug, project),
         TopicCommand::Current { path, json } => current(ctx, path, json),
+        TopicCommand::List { project, json } => list(ctx, project.as_deref(), json),
     }
 }
 
@@ -82,6 +84,21 @@ fn current(ctx: &Context, path_only: bool, json: bool) -> Result<()> {
         println!("path: {}", topic.path.display());
         let names: String = artifacts.iter().map(|name| format!(" {name}")).collect();
         println!("artifacts:{names}");
+    }
+    Ok(())
+}
+
+fn list(ctx: &Context, project: Option<&str>, json: bool) -> Result<()> {
+    let topics: Vec<_> = vault::list_topics(ctx.vault()?)?
+        .into_iter()
+        .filter(|topic| project.is_none_or(|name| topic.project == name))
+        .collect();
+    if json {
+        println!("{}", serde_json::to_string(&topics)?);
+    } else {
+        for topic in &topics {
+            println!("{}/{}", topic.project, topic.slug);
+        }
     }
     Ok(())
 }
