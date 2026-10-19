@@ -38,3 +38,22 @@ fn vault_set_stores_the_canonical_repository_root() {
         .success()
         .stdout(line);
 }
+
+#[test]
+fn vault_set_rejects_a_missing_path_and_writes_nothing() {
+    let h = Harness::new();
+    let missing = h.home.path().join("missing");
+
+    h.accio()
+        .args(["vault", "set"])
+        .arg(&missing)
+        .assert()
+        .code(1)
+        .stdout("")
+        .stderr(format!(
+            "accio: vault cannot be found: {} is not a directory\n",
+            missing.display()
+        ));
+
+    assert!(!h.config_path().exists());
+}
