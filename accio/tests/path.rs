@@ -1,5 +1,7 @@
 mod common;
 
+use std::fs;
+
 use common::Harness;
 
 const FILE_ARTIFACTS: [(&str, &str); 4] = [
@@ -80,4 +82,84 @@ fn path_without_a_marker_exits_1_with_hint() {
         .code(1)
         .stdout("")
         .stderr("accio: no .topic here; run accio topic use <slug>\n");
+}
+
+#[test]
+fn path_name_prints_the_entry_and_creates_only_its_directory() {
+    let h = Harness::new();
+    let topic = h.topic_with_marker("accio-cli");
+
+    h.accio_in(h.work.path())
+        .args(["path", "research", "--name", "evidence.md"])
+        .assert()
+        .success()
+        .stdout(format!(
+            "{}\n",
+            topic.join("research/evidence.md").display()
+        ));
+
+    assert!(topic.join("research").is_dir());
+    assert!(!topic.join("research/evidence.md").exists());
+}
+
+#[test]
+fn path_name_with_a_subfolder_creates_the_subfolder() {
+    let h = Harness::new();
+    let topic = h.topic_with_marker("accio-cli");
+
+    h.accio_in(h.work.path())
+        .args(["path", "verification", "--name", "screenshots/login.png"])
+        .assert()
+        .success()
+        .stdout(format!(
+            "{}\n",
+            topic.join("verification/screenshots/login.png").display()
+        ));
+
+    assert!(topic.join("verification/screenshots").is_dir());
+    assert!(!topic.join("verification/screenshots/login.png").exists());
+}
+
+#[test]
+fn path_name_on_a_file_artifact_exits_1_and_creates_nothing() {
+    let h = Harness::new();
+    let topic = h.topic_with_marker("accio-cli");
+
+    h.accio_in(h.work.path())
+        .args(["path", "brief", "--name", "draft.md"])
+        .assert()
+        .code(1)
+        .stdout("")
+        .stderr(
+            "accio: brief is a file; --name applies only to research, feasibility, verification, and review\n",
+        );
+
+    assert_eq!(fs::read_dir(&topic).unwrap().count(), 0);
+}
+
+#[test]
+fn path_name_that_leaves_the_directory_exits_1_and_creates_nothing() {
+    let h = Harness::new();
+    let topic = h.topic_with_marker("accio-cli");
+
+    h.accio_in(h.work.path())
+        .args(["path", "research", "--name", "../design.md"])
+        .assert()
+        .code(1)
+        .stdout("")
+        .stderr("accio: --name \"../design.md\" must not contain \"..\" components\n");
+    h.accio_in(h.work.path())
+        .args(["path", "research", "--name", "/tmp/evidence.md"])
+        .assert()
+        .code(1)
+        .stdout("")
+        .stderr("accio: --name \"/tmp/evidence.md\" must be a relative path\n");
+    h.accio_in(h.work.path())
+        .args(["path", "research", "--name", ""])
+        .assert()
+        .code(1)
+        .stdout("")
+        .stderr("accio: --name must not be empty\n");
+
+    assert!(!topic.join("research").exists());
 }
