@@ -15,14 +15,23 @@ pub const VAULT_KEY: &str = "vault";
 
 pub type Table = BTreeMap<String, String>;
 
-/// Reads the config file. A missing file is an empty table.
+/// Reads the config file. A missing file is an empty table; a value that is
+/// not a string is an error naming its key.
 pub fn load(path: &Path) -> Result<Table> {
     let text = match fs::read_to_string(path) {
         Ok(text) => text,
         Err(err) if err.kind() == io::ErrorKind::NotFound => return Ok(Table::new()),
         Err(err) => return Err(err).with_context(|| format!("cannot read {}", path.display())),
     };
-    toml::from_str(&text).with_context(|| format!("cannot parse {}", path.display()))
+    let parsed: toml::Table =
+        toml::from_str(&text).with_context(|| format!("cannot parse {}", path.display()))?;
+    parsed
+        .into_iter()
+        .map(|(key, value)| match value {
+            toml::Value::String(value) => Ok((key, value)),
+            _ => Err(anyhow!("config value for {key} is not a string")),
+        })
+        .collect()
 }
 
 /// Writes the table as TOML, creating the directory when missing. The text
