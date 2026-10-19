@@ -52,6 +52,9 @@ pub enum ConfigCommand {
 
 #[derive(Subcommand)]
 pub enum TopicCommand {
+    /// Create the topic folder when missing and point this checkout's
+    /// .topic marker at it.
+    Use { slug: String },
     /// Print the topic the .topic marker at the git toplevel points to.
     Current,
 }

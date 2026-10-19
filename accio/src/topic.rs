@@ -7,6 +7,8 @@ use std::path::{Component, Path, PathBuf};
 
 use anyhow::{Context as _, Result, bail};
 
+use crate::atomic;
+
 /// The file at the git toplevel that holds the topic folder's absolute path.
 pub const MARKER: &str = ".topic";
 
@@ -72,6 +74,14 @@ pub fn read_marker(toplevel: &Path) -> Result<Topic> {
         );
     }
     Ok(topic)
+}
+
+/// Points `<toplevel>/.topic` at a topic folder.
+pub fn write_marker(toplevel: &Path, topic_path: &Path) -> Result<()> {
+    let marker = toplevel.join(MARKER);
+    let line = format!("{}\n", topic_path.display());
+    atomic::write(&marker, line.as_bytes())
+        .with_context(|| format!("cannot write {}", marker.display()))
 }
 
 /// The shape every project name and slug must have.
