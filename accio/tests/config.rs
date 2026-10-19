@@ -83,26 +83,41 @@ fn config_get_vault_reads_the_value_written_by_vault_set() {
 fn config_list_prints_key_value_lines_sorted_by_key() {
     let h = Harness::new();
     let canonical = fs::canonicalize(h.vault.path()).unwrap();
-    h.accio().args(["config", "set", "zeta", "last"]).assert().success();
+    h.accio()
+        .args(["config", "set", "zeta", "last"])
+        .assert()
+        .success();
     h.accio()
         .args(["vault", "set"])
         .arg(h.vault.path())
         .assert()
         .success();
-    h.accio().args(["config", "set", "alpha", "first"]).assert().success();
+    h.accio()
+        .args(["config", "set", "alpha", "first"])
+        .assert()
+        .success();
 
     h.accio()
         .args(["config", "list"])
         .assert()
         .success()
-        .stdout(format!("alpha: first\nvault: {}\nzeta: last\n", canonical.display()));
+        .stdout(format!(
+            "alpha: first\nvault: {}\nzeta: last\n",
+            canonical.display()
+        ));
 }
 
 #[test]
 fn config_list_json_prints_an_object() {
     let h = Harness::new();
-    h.accio().args(["config", "set", "zeta", "last"]).assert().success();
-    h.accio().args(["config", "set", "alpha", "first"]).assert().success();
+    h.accio()
+        .args(["config", "set", "zeta", "last"])
+        .assert()
+        .success();
+    h.accio()
+        .args(["config", "set", "alpha", "first"])
+        .assert()
+        .success();
 
     let output = h
         .accio()
