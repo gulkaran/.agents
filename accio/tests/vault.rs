@@ -3,6 +3,7 @@ mod common;
 use std::fs;
 
 use common::Harness;
+use predicates::prelude::*;
 
 #[test]
 fn vault_path_without_config_exits_1_with_hint() {
@@ -54,6 +55,26 @@ fn vault_set_rejects_a_missing_path_and_writes_nothing() {
             "accio: vault cannot be found: {} is not a directory\n",
             missing.display()
         ));
+
+    assert!(!h.config_path().exists());
+}
+
+#[test]
+fn vault_set_rejects_a_directory_that_is_not_a_repository() {
+    let h = Harness::new();
+    let plain = h.home.path().join("plain");
+    fs::create_dir(&plain).unwrap();
+
+    h.accio()
+        .args(["vault", "set"])
+        .arg(&plain)
+        .assert()
+        .code(1)
+        .stdout("")
+        .stderr(
+            predicate::str::starts_with("accio: vault cannot be found: ")
+                .and(predicate::str::contains("not a git repository")),
+        );
 
     assert!(!h.config_path().exists());
 }
