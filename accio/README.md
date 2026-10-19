@@ -49,14 +49,14 @@ The eight artifacts:
 | `review` | directory | `review/` | yes | yes |
 
 A file artifact prints its path and creates nothing. A directory artifact
-prints the directory and creates it. With `--name`, the entry is used verbatim
-(no extension is added) and the printed path's parent is created, so `--name
-screenshots/login.png` creates `screenshots/` under the artifact directory.
-`--name` must be relative, non-empty, and free of `..` components. `accio
-path review --next` prints `review/round-<n>.md` where `n` is one more than
-the highest existing round (`round-<n>.md` with `n` a positive integer without
-leading zeros), or `round-1.md`; gaps are not filled. `accio path` never
-creates a file.
+prints the directory and creates it. With `--name`, accio uses the entry
+verbatim, adds no extension, and creates the printed path's parent, so
+`--name screenshots/login.png` creates `screenshots/` under the artifact
+directory. `--name` must be relative, non-empty, and free of `..` components.
+`accio path review --next` prints `review/round-<n>.md` where `n` is one more
+than the highest existing round (`round-<n>.md` with `n` a positive integer
+without leading zeros), or `round-1.md`; accio does not fill gaps. `accio
+path` never creates a file.
 
 ### `accio commit`
 
@@ -102,7 +102,7 @@ file and work from any directory.
 The default project for `topic use` is the repository name from the `origin`
 URL with `.git` and leading dots removed (`gulkaran/.agents` gives `agents`),
 or the checkout's directory name without `origin`; `--project` overrides both.
-Derived names are lowercased. Slugs and project names must match
+accio lowercases derived names. Slugs and project names must match
 `^[a-z0-9]+(-[a-z0-9]+)*$`.
 
 ## Output and errors

@@ -1,6 +1,7 @@
 mod common;
 
 use std::fs;
+use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 
 use common::Harness;
@@ -19,12 +20,6 @@ fn two_committed_topics(h: &Harness) -> PathBuf {
     h.git(h.vault.path(), &["add", "-A"]);
     h.git(h.vault.path(), &["commit", "-q", "-m", "Add two topics"]);
     topic
-}
-
-fn lines(text: &str) -> Vec<&str> {
-    let mut lines: Vec<&str> = text.lines().collect();
-    lines.sort_unstable();
-    lines
 }
 
 fn short_head(h: &Harness, repo: &Path) -> String {
@@ -62,8 +57,11 @@ fn commit_records_exactly_the_topic_folder_and_leaves_other_work_alone() {
         h.git(vault, &["log", "-1", "--format=%s"]).trim_end(),
         "docs(accio-cli): save the research"
     );
+    let shown = h.git(vault, &["show", "--name-status", "--format=", "HEAD"]);
+    let mut changes: Vec<&str> = shown.lines().collect();
+    changes.sort_unstable();
     assert_eq!(
-        lines(&h.git(vault, &["show", "--name-status", "--format=", "HEAD"])),
+        changes,
         [
             "A\tprojects/agents/topics/accio-cli/research/new.md",
             "D\tprojects/agents/topics/accio-cli/design.md",
@@ -177,11 +175,7 @@ fn commit_leaves_the_topic_staged_when_a_hook_rejects_it() {
     fs::create_dir_all(&hooks).unwrap();
     let hook = hooks.join("pre-commit");
     fs::write(&hook, "#!/bin/sh\necho rejected >&2\nexit 1\n").unwrap();
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        fs::set_permissions(&hook, fs::Permissions::from_mode(0o755)).unwrap();
-    }
+    fs::set_permissions(&hook, fs::Permissions::from_mode(0o755)).unwrap();
     fs::write(topic.join("brief.md"), "brief v2\n").unwrap();
 
     h.accio_in(h.work.path())
