@@ -74,4 +74,15 @@ mod tests {
             "tracker = \"github\"\nvault = \"/Users/me/Desktop/vault\"\n"
         );
     }
+
+    #[test]
+    fn non_string_value_is_an_error_naming_the_key() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("config.toml");
+        fs::write(&path, "tracker = \"github\"\nretries = 3\n").unwrap();
+
+        let err = load(&path).unwrap_err();
+
+        assert_eq!(err.to_string(), "config value for retries is not a string");
+    }
 }
