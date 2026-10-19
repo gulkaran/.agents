@@ -3,9 +3,17 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use anyhow::{Context as _, Result};
+use anyhow::{Context as _, Result, bail};
 
-/// Resolves `candidate` to the canonical path stored as the vault root.
+/// Checks that `candidate` is a directory and resolves it to the canonical
+/// path stored as the vault root.
 pub fn validate_root(candidate: &Path) -> Result<PathBuf> {
-    fs::canonicalize(candidate).with_context(|| format!("cannot resolve {}", candidate.display()))
+    check_root(candidate).context("vault cannot be found")
+}
+
+fn check_root(candidate: &Path) -> Result<PathBuf> {
+    if !candidate.is_dir() {
+        bail!("{} is not a directory", candidate.display());
+    }
+    Ok(fs::canonicalize(candidate)?)
 }
