@@ -3,7 +3,7 @@ export PATH := env("HOME") / ".cargo/bin:" + env("PATH")
 
 # Build the release binary and place it at ~/.local/bin/accio.
 install:
-    cargo install --path . --root "$HOME/.local"
+    cargo install --locked --path . --root "$HOME/.local"
 
 # Run the unit and integration tests.
 test:
