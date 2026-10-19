@@ -23,3 +23,25 @@ pub fn load(path: &Path) -> Result<Table> {
     };
     toml::from_str(&text).with_context(|| format!("cannot parse {}", path.display()))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn save_then_load_returns_the_same_table() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("nested").join("config.toml");
+        let mut table = Table::new();
+        table.insert("tracker".to_string(), "github".to_string());
+        table.insert("vault".to_string(), "/Users/me/Desktop/vault".to_string());
+
+        save(&path, &table).unwrap();
+
+        assert_eq!(load(&path).unwrap(), table);
+        assert_eq!(
+            fs::read_to_string(&path).unwrap(),
+            "tracker = \"github\"\nvault = \"/Users/me/Desktop/vault\"\n"
+        );
+    }
+}
