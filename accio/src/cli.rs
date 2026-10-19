@@ -62,5 +62,12 @@ pub enum TopicCommand {
         project: Option<String>,
     },
     /// Print the topic the .topic marker at the git toplevel points to.
-    Current,
+    Current {
+        /// Print only the topic folder path.
+        #[arg(long, conflicts_with = "json")]
+        path: bool,
+        /// Print a JSON object instead of key: value lines.
+        #[arg(long)]
+        json: bool,
+    },
 }
