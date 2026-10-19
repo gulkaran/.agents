@@ -1,9 +1,45 @@
 //! The current topic: the marker at the git toplevel, the exclude line that
 //! hides it, and the project and slug names that locate a topic in the vault.
 
-use std::path::Path;
+use std::path::{Component, Path, PathBuf};
 
 use anyhow::{Result, bail};
+
+/// A topic folder in the vault, located by its project and slug.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Topic {
+    pub project: String,
+    pub slug: String,
+    pub path: PathBuf,
+}
+
+impl Topic {
+    /// Reads the project and slug from an absolute path whose last four
+    /// components are `projects/<project>/topics/<slug>`. Any other path is
+    /// not a topic.
+    pub fn from_path(path: PathBuf) -> Option<Self> {
+        if !path.is_absolute() {
+            return None;
+        }
+        let mut components = path.components().rev().map(|component| match component {
+            Component::Normal(name) => name.to_str(),
+            _ => None,
+        });
+        let slug = components.next()??;
+        if components.next()?? != "topics" {
+            return None;
+        }
+        let project = components.next()??;
+        if components.next()?? != "projects" {
+            return None;
+        }
+        Some(Topic {
+            project: project.to_string(),
+            slug: slug.to_string(),
+            path,
+        })
+    }
+}
 
 /// The shape every project name and slug must have.
 pub const NAME_RULE: &str = "^[a-z0-9]+(-[a-z0-9]+)*$";
