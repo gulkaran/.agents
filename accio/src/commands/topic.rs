@@ -1,4 +1,5 @@
 use std::fs;
+use std::path::Path;
 
 use anyhow::{Context as _, Result};
 
@@ -26,6 +27,11 @@ fn use_topic(ctx: &Context, slug: &str) -> Result<()> {
         .join(slug);
     let created = !path.is_dir();
     fs::create_dir_all(&path).with_context(|| format!("cannot create {}", path.display()))?;
+    let exclude = git::run(
+        toplevel,
+        &["rev-parse", "--path-format=absolute", "--git-path", "info/exclude"],
+    )?;
+    topic::ensure_exclude_line(Path::new(&exclude))?;
     topic::write_marker(toplevel, &path)?;
     let verb = if created { "created" } else { "using" };
     println!("{verb} {}", path.display());

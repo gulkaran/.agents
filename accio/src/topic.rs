@@ -1,8 +1,8 @@
 //! The current topic: the marker at the git toplevel, the exclude line that
 //! hides it, and the project and slug names that locate a topic in the vault.
 
-use std::fs;
-use std::io;
+use std::fs::{self, OpenOptions};
+use std::io::{self, Write as _};
 use std::path::{Component, Path, PathBuf};
 
 use anyhow::{Context as _, Result, bail};
@@ -11,6 +11,9 @@ use crate::atomic;
 
 /// The file at the git toplevel that holds the topic folder's absolute path.
 pub const MARKER: &str = ".topic";
+
+/// The exclude pattern that hides the marker at every worktree root.
+const EXCLUDE_LINE: &str = "/.topic";
 
 /// A topic folder in the vault, located by its project and slug.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -82,6 +85,31 @@ pub fn write_marker(toplevel: &Path, topic_path: &Path) -> Result<()> {
     let line = format!("{}\n", topic_path.display());
     atomic::write(&marker, line.as_bytes())
         .with_context(|| format!("cannot write {}", marker.display()))
+}
+
+/// Appends the `/.topic` line to git's exclude file unless a line already
+/// equals it, creating the file and its directory when missing and starting
+/// a new line when the file does not end with one.
+pub fn ensure_exclude_line(exclude: &Path) -> Result<()> {
+    let existing = match fs::read_to_string(exclude) {
+        Ok(text) => text,
+        Err(err) if err.kind() == io::ErrorKind::NotFound => String::new(),
+        Err(err) => return Err(err).with_context(|| format!("cannot read {}", exclude.display())),
+    };
+    if existing.lines().any(|line| line == EXCLUDE_LINE) {
+        return Ok(());
+    }
+    let appended = (|| {
+        if let Some(dir) = exclude.parent() {
+            fs::create_dir_all(dir)?;
+        }
+        let mut file = OpenOptions::new().append(true).create(true).open(exclude)?;
+        if !existing.is_empty() && !existing.ends_with('\n') {
+            file.write_all(b"\n")?;
+        }
+        file.write_all(format!("{EXCLUDE_LINE}\n").as_bytes())
+    })();
+    appended.with_context(|| format!("cannot write {}", exclude.display()))
 }
 
 /// The shape every project name and slug must have.
