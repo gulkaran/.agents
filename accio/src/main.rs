@@ -38,5 +38,6 @@ fn run(command: Command) -> Result<()> {
             name,
             next,
         } => commands::path::run(&ctx, &artifact, name.as_deref(), next),
+        Command::Commit { message } => commands::commit::run(&ctx, &message),
     }
 }

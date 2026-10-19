@@ -40,6 +40,12 @@ pub enum Command {
         #[arg(long)]
         next: bool,
     },
+    /// Commit the current topic folder in the vault repository as
+    /// docs(<slug>): <message>, leaving other staged work staged.
+    Commit {
+        #[arg(short, long)]
+        message: String,
+    },
 }
 
 #[derive(Subcommand)]
