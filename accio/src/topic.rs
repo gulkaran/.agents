@@ -29,6 +29,8 @@ fn is_kebab_case(name: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
+    use std::path::Path;
+
     use super::*;
 
     #[test]
@@ -62,6 +64,36 @@ mod tests {
         assert_eq!(
             err.to_string(),
             "project \"Some_Repo\" must match ^[a-z0-9]+(-[a-z0-9]+)*$"
+        );
+    }
+
+    #[test]
+    fn project_is_derived_from_the_origin_repository_name() {
+        let toplevel = Path::new("/work/checkout");
+        for (origin, expected) in [
+            ("git@github.com:gulkaran/.agents.git", "agents"),
+            ("https://github.com/Shopify/infra-central.git", "infra-central"),
+            ("https://github.com/Shopify/infra-central", "infra-central"),
+            ("ssh://git@github.com/owner/repo", "repo"),
+            ("https://github.com/owner/repo.git/", "repo"),
+        ] {
+            assert_eq!(derive_project(Some(origin), toplevel).unwrap(), expected);
+        }
+    }
+
+    #[test]
+    fn project_falls_back_to_the_toplevel_basename_without_leading_dots() {
+        assert_eq!(
+            derive_project(None, Path::new("/Users/me/.agents")).unwrap(),
+            "agents"
+        );
+        assert_eq!(
+            derive_project(None, Path::new("/srv/infra-central")).unwrap(),
+            "infra-central"
+        );
+        assert_eq!(
+            derive_project(Some(".git"), Path::new("/srv/fallback")).unwrap(),
+            "fallback"
         );
     }
 }
