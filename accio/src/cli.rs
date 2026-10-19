@@ -1,5 +1,7 @@
 //! The clap command tree. Each verb dispatches to one module under `commands`.
 
+use std::path::PathBuf;
+
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
@@ -22,6 +24,8 @@ pub enum Command {
 
 #[derive(Subcommand)]
 pub enum VaultCommand {
+    /// Record the root of the vault repository.
+    Set { path: PathBuf },
     /// Print the configured vault root.
     Path,
 }

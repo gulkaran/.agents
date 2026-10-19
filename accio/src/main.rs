@@ -2,6 +2,7 @@ mod cli;
 mod commands;
 mod config;
 mod context;
+mod vault;
 
 use std::process::ExitCode;
 
