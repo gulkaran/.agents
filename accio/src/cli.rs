@@ -32,6 +32,10 @@ pub enum Command {
         /// One of brief, investigation, design, decisions, research,
         /// feasibility, verification, review.
         artifact: String,
+        /// Entry under a directory artifact, used verbatim; a subfolder in
+        /// it is created too.
+        #[arg(long)]
+        name: Option<String>,
     },
 }
 
