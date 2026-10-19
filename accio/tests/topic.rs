@@ -171,3 +171,124 @@ fn topic_use_without_a_vault_exits_1_with_hint_and_writes_nothing() {
     assert!(!h.work.path().join(".topic").exists());
     assert!(!h.vault.path().join("projects").exists());
 }
+
+fn exclude_path(h: &Harness, dir: &std::path::Path) -> std::path::PathBuf {
+    let printed = h.git(
+        dir,
+        &["rev-parse", "--path-format=absolute", "--git-path", "info/exclude"],
+    );
+    std::path::PathBuf::from(printed.trim_end())
+}
+
+fn count_marker_lines(text: &str) -> usize {
+    text.lines().filter(|line| *line == "/.topic").count()
+}
+
+#[test]
+fn topic_use_adds_the_exclude_line_once_across_two_runs() {
+    let h = Harness::new();
+    h.accio()
+        .args(["vault", "set"])
+        .arg(h.vault.path())
+        .assert()
+        .success();
+    let exclude = exclude_path(&h, h.work.path());
+    let before = fs::read_to_string(&exclude).unwrap();
+    assert_eq!(count_marker_lines(&before), 0);
+    assert!(before.ends_with('\n'));
+
+    h.accio_in(h.work.path())
+        .args(["topic", "use", "first"])
+        .assert()
+        .success();
+    h.accio_in(h.work.path())
+        .args(["topic", "use", "second"])
+        .assert()
+        .success();
+
+    let after = fs::read_to_string(&exclude).unwrap();
+    assert_eq!(after, format!("{before}/.topic\n"));
+    assert_eq!(count_marker_lines(&after), 1);
+    assert_eq!(h.git(h.work.path(), &["status", "--porcelain"]), "");
+}
+
+#[test]
+fn topic_use_creates_a_missing_exclude_file() {
+    let h = Harness::new();
+    h.accio()
+        .args(["vault", "set"])
+        .arg(h.vault.path())
+        .assert()
+        .success();
+    let exclude = exclude_path(&h, h.work.path());
+    fs::remove_dir_all(exclude.parent().unwrap()).unwrap();
+
+    h.accio_in(h.work.path())
+        .args(["topic", "use", "first"])
+        .assert()
+        .success();
+
+    assert_eq!(fs::read_to_string(&exclude).unwrap(), "/.topic\n");
+}
+
+#[test]
+fn topic_use_starts_a_new_line_when_the_exclude_file_lacks_a_trailing_newline() {
+    let h = Harness::new();
+    h.accio()
+        .args(["vault", "set"])
+        .arg(h.vault.path())
+        .assert()
+        .success();
+    let exclude = exclude_path(&h, h.work.path());
+    fs::write(&exclude, "*.log").unwrap();
+
+    h.accio_in(h.work.path())
+        .args(["topic", "use", "first"])
+        .assert()
+        .success();
+
+    assert_eq!(fs::read_to_string(&exclude).unwrap(), "*.log\n/.topic\n");
+}
+
+#[test]
+fn topic_use_from_a_linked_worktree_shares_the_exclude_line_and_owns_its_marker() {
+    let h = Harness::new();
+    h.accio()
+        .args(["vault", "set"])
+        .arg(h.vault.path())
+        .assert()
+        .success();
+    let topics = fs::canonicalize(h.vault.path())
+        .unwrap()
+        .join("projects/agents/topics");
+    let worktree = h.home.path().join("wt");
+    h.git(
+        h.work.path(),
+        &["worktree", "add", "-q", worktree.to_str().unwrap(), "-b", "feature"],
+    );
+    let worktree = fs::canonicalize(&worktree).unwrap();
+    h.accio_in(h.work.path())
+        .args(["topic", "use", "first"])
+        .assert()
+        .success();
+
+    h.accio_in(&worktree)
+        .args(["topic", "use", "second"])
+        .assert()
+        .success()
+        .stdout(format!("created {}\n", topics.join("second").display()));
+
+    let exclude = exclude_path(&h, h.work.path());
+    assert_eq!(exclude, exclude_path(&h, &worktree));
+    assert_eq!(count_marker_lines(&fs::read_to_string(&exclude).unwrap()), 1);
+    assert_eq!(
+        fs::read_to_string(h.work.path().join(".topic")).unwrap(),
+        format!("{}\n", topics.join("first").display())
+    );
+    assert_eq!(
+        fs::read_to_string(worktree.join(".topic")).unwrap(),
+        format!("{}\n", topics.join("second").display())
+    );
+    assert_eq!(h.git(h.work.path(), &["status", "--porcelain"]), "");
+    assert_eq!(h.git(&worktree, &["status", "--porcelain"]), "");
+}
