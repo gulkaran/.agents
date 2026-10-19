@@ -3,6 +3,7 @@ mod common;
 use std::fs;
 
 use common::Harness;
+use predicates::prelude::*;
 
 const FILE_ARTIFACTS: [(&str, &str); 4] = [
     ("brief", "brief.md"),
@@ -162,4 +163,74 @@ fn path_name_that_leaves_the_directory_exits_1_and_creates_nothing() {
         .stderr("accio: --name must not be empty\n");
 
     assert!(!topic.join("research").exists());
+}
+
+#[test]
+fn path_review_next_prints_round_1_and_creates_review_when_missing() {
+    let h = Harness::new();
+    let topic = h.topic_with_marker("accio-cli");
+
+    h.accio_in(h.work.path())
+        .args(["path", "review", "--next"])
+        .assert()
+        .success()
+        .stdout(format!("{}\n", topic.join("review/round-1.md").display()));
+
+    assert!(topic.join("review").is_dir());
+    assert!(!topic.join("review/round-1.md").exists());
+}
+
+#[test]
+fn path_review_next_follows_the_highest_round_and_ignores_other_entries() {
+    let h = Harness::new();
+    let topic = h.topic_with_marker("accio-cli");
+    let review = topic.join("review");
+    fs::create_dir_all(review.join("round-2")).unwrap();
+    for file in [
+        "round-1.md",
+        "round-3.md",
+        "round-01.md",
+        "notes.md",
+        "round-2.md.bak",
+    ] {
+        fs::write(review.join(file), "").unwrap();
+    }
+
+    h.accio_in(h.work.path())
+        .args(["path", "review", "--next"])
+        .assert()
+        .success()
+        .stdout(format!("{}\n", review.join("round-4.md").display()));
+
+    assert!(!review.join("round-4.md").exists());
+}
+
+#[test]
+fn path_next_on_another_artifact_exits_1_and_creates_nothing() {
+    let h = Harness::new();
+    let topic = h.topic_with_marker("accio-cli");
+
+    for artifact in ["research", "brief"] {
+        h.accio_in(h.work.path())
+            .args(["path", artifact, "--next"])
+            .assert()
+            .code(1)
+            .stdout("")
+            .stderr("accio: --next applies only to review; run accio path review --next\n");
+    }
+
+    assert_eq!(fs::read_dir(&topic).unwrap().count(), 0);
+}
+
+#[test]
+fn path_name_and_next_are_a_usage_error_together() {
+    let h = Harness::new();
+    h.topic_with_marker("accio-cli");
+
+    h.accio_in(h.work.path())
+        .args(["path", "review", "--name", "round-9.md", "--next"])
+        .assert()
+        .code(2)
+        .stdout("")
+        .stderr(predicate::str::contains("cannot be used with"));
 }
