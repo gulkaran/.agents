@@ -124,15 +124,22 @@ pub fn next_round(review: &Path) -> Result<String> {
             highest = highest.max(round);
         }
     }
-    Ok(round_file(highest + 1))
+    let next = highest.checked_add(1).ok_or_else(|| {
+        anyhow!(
+            "{} is the highest round accio can number; rename or remove it",
+            review.join(round_file(highest)).display()
+        )
+    })?;
+    Ok(round_file(next))
 }
 
-fn round_file(round: u32) -> String {
+fn round_file(round: u64) -> String {
     format!("round-{round}.md")
 }
 
-/// The `n` in `round-<n>.md` when the name has exactly that shape.
-fn round_number(name: &str) -> Option<u32> {
+/// The `n` in `round-<n>.md` when the name has exactly that shape. A number
+/// too large for a `u64` is treated like any other name that is not a round.
+fn round_number(name: &str) -> Option<u64> {
     let digits = name.strip_prefix("round-")?.strip_suffix(".md")?;
     let canonical = !digits.is_empty()
         && !digits.starts_with('0')
