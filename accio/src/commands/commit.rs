@@ -9,6 +9,12 @@ pub fn run(ctx: &Context, message: &str) -> Result<()> {
     let pathspec = dir
         .to_str()
         .ok_or_else(|| anyhow!("{} is not valid UTF-8", dir.display()))?;
+    git::run(dir, &["rev-parse", "--show-toplevel"]).map_err(|_| {
+        anyhow!(
+            "{} is not inside a git repository; run git init in the vault root",
+            dir.display()
+        )
+    })?;
     let status = git::run(
         dir,
         &[
