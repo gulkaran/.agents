@@ -39,4 +39,10 @@ pub enum ConfigCommand {
     Get { key: String },
     /// Store a value under a key.
     Set { key: String, value: String },
+    /// Print every key and value.
+    List {
+        /// Print a JSON object instead of key: value lines.
+        #[arg(long)]
+        json: bool,
+    },
 }

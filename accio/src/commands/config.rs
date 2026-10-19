@@ -8,6 +8,7 @@ pub fn run(ctx: &Context, command: ConfigCommand) -> Result<()> {
     match command {
         ConfigCommand::Get { key } => get(ctx, &key),
         ConfigCommand::Set { key, value } => set(ctx, key, value),
+        ConfigCommand::List { json } => list(ctx, json),
     }
 }
 
@@ -27,4 +28,16 @@ fn set(ctx: &Context, key: String, value: String) -> Result<()> {
     let mut table = config::load(ctx.config_path())?;
     table.insert(key, value);
     config::save(ctx.config_path(), &table)
+}
+
+fn list(ctx: &Context, json: bool) -> Result<()> {
+    let table = ctx.config()?;
+    if json {
+        println!("{}", serde_json::to_string(table)?);
+    } else {
+        for (key, value) in table {
+            println!("{key}: {value}");
+        }
+    }
+    Ok(())
 }
