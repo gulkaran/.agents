@@ -74,6 +74,25 @@ impl Harness {
         String::from_utf8(output.stdout).unwrap()
     }
 
+    /// Points the work repository at `<vault>/projects/agents/topics/<slug>`
+    /// through `vault set` and `topic use`, and returns that folder's
+    /// canonical path.
+    pub fn topic_with_marker(&self, slug: &str) -> PathBuf {
+        self.accio()
+            .args(["vault", "set"])
+            .arg(self.vault.path())
+            .assert()
+            .success();
+        self.accio_in(self.work.path())
+            .args(["topic", "use", slug])
+            .assert()
+            .success();
+        fs::canonicalize(self.vault.path())
+            .unwrap()
+            .join("projects/agents/topics")
+            .join(slug)
+    }
+
     /// Turns `dir` into a git repository with one commit.
     pub fn init_repo(&self, dir: &Path) {
         self.git(dir, &["init", "-q", "-b", "main"]);

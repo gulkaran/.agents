@@ -386,26 +386,10 @@ fn topic_use_rejects_a_project_override_that_is_not_kebab_case_and_writes_nothin
     assert!(!h.work.path().join(".topic").exists());
 }
 
-fn topic_with_marker(h: &Harness, slug: &str) -> PathBuf {
-    h.accio()
-        .args(["vault", "set"])
-        .arg(h.vault.path())
-        .assert()
-        .success();
-    h.accio_in(h.work.path())
-        .args(["topic", "use", slug])
-        .assert()
-        .success();
-    fs::canonicalize(h.vault.path())
-        .unwrap()
-        .join("projects/agents/topics")
-        .join(slug)
-}
-
 #[test]
 fn topic_current_prints_key_value_lines_with_artifacts_in_canonical_order() {
     let h = Harness::new();
-    let topic = topic_with_marker(&h, "accio-cli");
+    let topic = h.topic_with_marker("accio-cli");
     for dir in [
         "review",
         "verification",
@@ -438,7 +422,7 @@ fn topic_current_prints_key_value_lines_with_artifacts_in_canonical_order() {
 #[test]
 fn topic_current_lists_no_artifacts_for_an_empty_topic() {
     let h = Harness::new();
-    let topic = topic_with_marker(&h, "accio-cli");
+    let topic = h.topic_with_marker("accio-cli");
 
     h.accio_in(h.work.path())
         .args(["topic", "current"])
@@ -453,7 +437,7 @@ fn topic_current_lists_no_artifacts_for_an_empty_topic() {
 #[test]
 fn topic_current_counts_only_artifacts_of_the_expected_kind() {
     let h = Harness::new();
-    let topic = topic_with_marker(&h, "accio-cli");
+    let topic = h.topic_with_marker("accio-cli");
     fs::create_dir(topic.join("brief.md")).unwrap();
     fs::write(topic.join("research"), "").unwrap();
     fs::write(topic.join("design.md"), "").unwrap();
@@ -471,7 +455,7 @@ fn topic_current_counts_only_artifacts_of_the_expected_kind() {
 #[test]
 fn topic_current_path_prints_only_the_folder() {
     let h = Harness::new();
-    let topic = topic_with_marker(&h, "accio-cli");
+    let topic = h.topic_with_marker("accio-cli");
     fs::write(topic.join("brief.md"), "").unwrap();
 
     h.accio_in(h.work.path())
@@ -484,7 +468,7 @@ fn topic_current_path_prints_only_the_folder() {
 #[test]
 fn topic_current_json_prints_an_object_with_the_artifact_list() {
     let h = Harness::new();
-    let topic = topic_with_marker(&h, "accio-cli");
+    let topic = h.topic_with_marker("accio-cli");
     fs::write(topic.join("brief.md"), "").unwrap();
     fs::write(topic.join("design.md"), "").unwrap();
     fs::create_dir(topic.join("verification")).unwrap();
@@ -513,7 +497,7 @@ fn topic_current_json_prints_an_object_with_the_artifact_list() {
 #[test]
 fn topic_current_path_and_json_are_a_usage_error_together() {
     let h = Harness::new();
-    topic_with_marker(&h, "accio-cli");
+    h.topic_with_marker("accio-cli");
 
     h.accio_in(h.work.path())
         .args(["topic", "current", "--path", "--json"])
