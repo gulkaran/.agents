@@ -7,8 +7,8 @@ use anyhow::{Context as _, Result, bail};
 
 use crate::git;
 
-/// Checks that `candidate` is a directory inside a git repository and
-/// resolves it to the canonical path stored as the vault root.
+/// Checks that `candidate` is a directory and the root of a git repository,
+/// and resolves it to the canonical path stored as the vault root.
 pub fn validate_root(candidate: &Path) -> Result<PathBuf> {
     check_root(candidate).context("vault cannot be found")
 }
@@ -18,6 +18,14 @@ fn check_root(candidate: &Path) -> Result<PathBuf> {
         bail!("{} is not a directory", candidate.display());
     }
     let canonical = fs::canonicalize(candidate)?;
-    git::run(&canonical, &["rev-parse", "--show-toplevel"])?;
+    let toplevel = git::run(&canonical, &["rev-parse", "--show-toplevel"])?;
+    let toplevel = fs::canonicalize(toplevel)?;
+    if toplevel != canonical {
+        bail!(
+            "{} is not a repository root; run accio vault set {}",
+            canonical.display(),
+            toplevel.display()
+        );
+    }
     Ok(canonical)
 }
