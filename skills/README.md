@@ -58,7 +58,7 @@ GitHub CLI, never committed just to provide an image URL.
 
 ## Setup
 
-The repository is cloned to `~/.agents`, and skills are discovered in place at
+Clone the repository to `~/.agents`. Claude Code discovers skills in place at
 `~/.agents/skills/*`. Set vault and tracker settings in
 [\_shared/config.md](_shared/config.md). Put machine overrides in the gitignored
 `_shared/config.local.md`.
