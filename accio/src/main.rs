@@ -3,6 +3,7 @@ mod commands;
 mod config;
 mod context;
 mod git;
+mod topic;
 mod vault;
 
 use std::process::ExitCode;
