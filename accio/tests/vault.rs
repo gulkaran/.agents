@@ -78,3 +78,26 @@ fn vault_set_rejects_a_directory_that_is_not_a_repository() {
 
     assert!(!h.config_path().exists());
 }
+
+#[test]
+fn vault_set_rejects_a_subdirectory_of_a_repository() {
+    let h = Harness::new();
+    let sub = h.vault.path().join("projects");
+    fs::create_dir(&sub).unwrap();
+    let canonical_sub = fs::canonicalize(&sub).unwrap();
+    let canonical_root = fs::canonicalize(h.vault.path()).unwrap();
+
+    h.accio()
+        .args(["vault", "set"])
+        .arg(&sub)
+        .assert()
+        .code(1)
+        .stdout("")
+        .stderr(format!(
+            "accio: vault cannot be found: {} is not a repository root; run accio vault set {}\n",
+            canonical_sub.display(),
+            canonical_root.display()
+        ));
+
+    assert!(!h.config_path().exists());
+}
