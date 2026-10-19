@@ -28,5 +28,6 @@ fn run(command: Command) -> Result<()> {
     let ctx = Context::from_env()?;
     match command {
         Command::Vault(command) => commands::vault::run(&ctx, command),
+        Command::Config(command) => commands::config::run(&ctx, command),
     }
 }
