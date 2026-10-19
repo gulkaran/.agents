@@ -1,3 +1,7 @@
-_shared/config.local.md
-orchestrate/references/defaults.local.md
+/AGENTS.md
+/.skill-lock.json
+/verification/
+/accio/target/
 .DS_Store
+skills/_shared/config.local.md
+skills/orchestrate/references/defaults.local.md
