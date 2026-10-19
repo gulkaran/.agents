@@ -23,6 +23,9 @@ pub enum Command {
     /// Read and write the flat key-value config file.
     #[command(subcommand)]
     Config(ConfigCommand),
+    /// Create, switch, and query the topic this checkout works on.
+    #[command(subcommand)]
+    Topic(TopicCommand),
 }
 
 #[derive(Subcommand)]
@@ -45,4 +48,10 @@ pub enum ConfigCommand {
         #[arg(long)]
         json: bool,
     },
+}
+
+#[derive(Subcommand)]
+pub enum TopicCommand {
+    /// Print the topic the .topic marker at the git toplevel points to.
+    Current,
 }

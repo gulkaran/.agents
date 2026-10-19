@@ -1,9 +1,14 @@
 //! The current topic: the marker at the git toplevel, the exclude line that
 //! hides it, and the project and slug names that locate a topic in the vault.
 
+use std::fs;
+use std::io;
 use std::path::{Component, Path, PathBuf};
 
-use anyhow::{Result, bail};
+use anyhow::{Context as _, Result, bail};
+
+/// The file at the git toplevel that holds the topic folder's absolute path.
+pub const MARKER: &str = ".topic";
 
 /// A topic folder in the vault, located by its project and slug.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -39,6 +44,34 @@ impl Topic {
             path,
         })
     }
+}
+
+/// Reads the topic from `<toplevel>/.topic`. The marker's first line must be
+/// an absolute path into a vault's `projects/<project>/topics/<slug>`, and
+/// that folder must exist.
+pub fn read_marker(toplevel: &Path) -> Result<Topic> {
+    let marker = toplevel.join(MARKER);
+    let text = match fs::read_to_string(&marker) {
+        Ok(text) => text,
+        Err(err) if err.kind() == io::ErrorKind::NotFound => {
+            bail!("no {MARKER} here; run accio topic use <slug>")
+        }
+        Err(err) => return Err(err).with_context(|| format!("cannot read {}", marker.display())),
+    };
+    let path = PathBuf::from(text.lines().next().unwrap_or_default());
+    let Some(topic) = Topic::from_path(path) else {
+        bail!(
+            "{MARKER} at {} does not point into a vault topic; run accio topic use <slug>",
+            marker.display()
+        );
+    };
+    if !topic.path.is_dir() {
+        bail!(
+            "{MARKER} points to {}, which does not exist; run accio topic use <slug>",
+            topic.path.display()
+        );
+    }
+    Ok(topic)
 }
 
 /// The shape every project name and slug must have.

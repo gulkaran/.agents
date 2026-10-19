@@ -30,5 +30,6 @@ fn run(command: Command) -> Result<()> {
     match command {
         Command::Vault(command) => commands::vault::run(&ctx, command),
         Command::Config(command) => commands::config::run(&ctx, command),
+        Command::Topic(command) => commands::topic::run(&ctx, command),
     }
 }
