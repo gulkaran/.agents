@@ -1,4 +1,4 @@
-use anyhow::{Result, anyhow};
+use anyhow::{Result, anyhow, bail};
 
 use crate::context::Context;
 use crate::git;
@@ -9,6 +9,19 @@ pub fn run(ctx: &Context, message: &str) -> Result<()> {
     let pathspec = dir
         .to_str()
         .ok_or_else(|| anyhow!("{} is not valid UTF-8", dir.display()))?;
+    let status = git::run(
+        dir,
+        &[
+            "status",
+            "--porcelain",
+            "--untracked-files=all",
+            "--",
+            pathspec,
+        ],
+    )?;
+    if status.is_empty() {
+        bail!("nothing changed in {}/{}", topic.project, topic.slug);
+    }
     git::run(dir, &["add", "-A", "--", pathspec])?;
     let subject = format!("docs({}): {message}", topic.slug);
     git::run(dir, &["commit", "-q", "-m", &subject, "--", pathspec])?;
