@@ -122,6 +122,37 @@ fn path_name_with_a_subfolder_creates_the_subfolder() {
 }
 
 #[test]
+fn path_name_ending_in_a_dot_component_creates_the_printed_directory() {
+    let h = Harness::new();
+    let topic = h.topic_with_marker("accio-cli");
+
+    h.accio_in(h.work.path())
+        .args(["path", "research", "--name", "."])
+        .assert()
+        .success()
+        .stdout(format!("{}\n", topic.join("research/.").display()));
+    assert!(topic.join("research").is_dir());
+
+    h.accio_in(h.work.path())
+        .args(["path", "verification", "--name", "shots/."])
+        .assert()
+        .success()
+        .stdout(format!(
+            "{}\n",
+            topic.join("verification/shots/.").display()
+        ));
+    assert!(topic.join("verification/shots").is_dir());
+
+    assert_eq!(fs::read_dir(topic.join("research")).unwrap().count(), 0);
+    assert_eq!(
+        fs::read_dir(topic.join("verification/shots"))
+            .unwrap()
+            .count(),
+        0
+    );
+}
+
+#[test]
 fn path_name_on_a_file_artifact_exits_1_and_creates_nothing() {
     let h = Harness::new();
     let topic = h.topic_with_marker("accio-cli");
