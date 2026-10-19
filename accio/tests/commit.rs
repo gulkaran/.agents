@@ -216,3 +216,33 @@ fn commit_leaves_the_topic_staged_when_a_hook_rejects_it() {
         "docs(accio-cli): unblocked"
     );
 }
+
+#[test]
+fn commit_with_a_clean_topic_exits_1_and_records_nothing() {
+    let h = Harness::new();
+    let topic = two_committed_topics(&h);
+    let other = topic.parent().unwrap().join("other");
+    fs::write(other.join("brief.md"), "other brief v2\n").unwrap();
+    h.git(
+        h.vault.path(),
+        &["add", "projects/agents/topics/other/brief.md"],
+    );
+
+    h.accio_in(h.work.path())
+        .args(["commit", "-m", "nothing to save"])
+        .assert()
+        .code(1)
+        .stdout("")
+        .stderr("accio: nothing changed in agents/accio-cli\n");
+
+    assert_eq!(
+        h.git(h.vault.path(), &["log", "-1", "--format=%s"])
+            .trim_end(),
+        "Add two topics"
+    );
+    assert_eq!(
+        h.git(h.vault.path(), &["diff", "--cached", "--name-only"])
+            .trim_end(),
+        "projects/agents/topics/other/brief.md"
+    );
+}
