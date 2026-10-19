@@ -493,3 +493,123 @@ fn topic_current_path_and_json_are_a_usage_error_together() {
         .assert()
         .code(2);
 }
+
+fn vault_with_topics(h: &Harness) -> std::path::PathBuf {
+    h.accio()
+        .args(["vault", "set"])
+        .arg(h.vault.path())
+        .assert()
+        .success();
+    let projects = fs::canonicalize(h.vault.path()).unwrap().join("projects");
+    for topic in [
+        "agents/topics/zeta",
+        "agents/topics/alpha",
+        "backlog/topics/cd-1",
+        "agents/topics/.hidden",
+        "empty-project",
+    ] {
+        fs::create_dir_all(projects.join(topic)).unwrap();
+    }
+    for file in [
+        ".DS_Store",
+        "README.md",
+        "agents/topics/.DS_Store",
+        "agents/topics/notes.md",
+    ] {
+        fs::write(projects.join(file), "").unwrap();
+    }
+    projects
+}
+
+#[test]
+fn topic_list_prints_sorted_project_slug_lines_from_anywhere() {
+    let h = Harness::new();
+    vault_with_topics(&h);
+
+    h.accio()
+        .args(["topic", "list"])
+        .assert()
+        .success()
+        .stdout("agents/alpha\nagents/zeta\nbacklog/cd-1\n");
+}
+
+#[test]
+fn topic_list_filters_by_project() {
+    let h = Harness::new();
+    vault_with_topics(&h);
+
+    h.accio()
+        .args(["topic", "list", "--project", "backlog"])
+        .assert()
+        .success()
+        .stdout("backlog/cd-1\n");
+    h.accio()
+        .args(["topic", "list", "--project", "unknown"])
+        .assert()
+        .success()
+        .stdout("");
+}
+
+#[test]
+fn topic_list_json_prints_an_array_of_topics() {
+    let h = Harness::new();
+    let projects = vault_with_topics(&h);
+
+    let output = h
+        .accio()
+        .args(["topic", "list", "--json", "--project", "agents"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+
+    let parsed: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    assert_eq!(
+        parsed,
+        json!([
+            {
+                "project": "agents",
+                "slug": "alpha",
+                "path": projects.join("agents/topics/alpha").to_str().unwrap(),
+            },
+            {
+                "project": "agents",
+                "slug": "zeta",
+                "path": projects.join("agents/topics/zeta").to_str().unwrap(),
+            },
+        ])
+    );
+}
+
+#[test]
+fn topic_list_prints_nothing_for_a_vault_without_projects() {
+    let h = Harness::new();
+    h.accio()
+        .args(["vault", "set"])
+        .arg(h.vault.path())
+        .assert()
+        .success();
+
+    h.accio()
+        .args(["topic", "list"])
+        .assert()
+        .success()
+        .stdout("");
+    h.accio()
+        .args(["topic", "list", "--json"])
+        .assert()
+        .success()
+        .stdout("[]\n");
+}
+
+#[test]
+fn topic_list_without_a_vault_exits_1_with_hint() {
+    let h = Harness::new();
+    h.accio()
+        .args(["topic", "list"])
+        .assert()
+        .code(1)
+        .stdout("")
+        .stderr("accio: no vault configured; run accio vault set <path>\n");
+}
