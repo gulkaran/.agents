@@ -93,11 +93,18 @@ pub fn validate_name(name: &str) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
+    use std::fs;
+
     use super::*;
 
     #[test]
     fn relative_names_without_parent_components_are_valid() {
-        for name in ["evidence.md", "screenshots/login.png", "a/b/c", "round-1.md"] {
+        for name in [
+            "evidence.md",
+            "screenshots/login.png",
+            "a/b/c",
+            "round-1.md",
+        ] {
             validate_name(name).unwrap();
         }
     }
@@ -126,5 +133,47 @@ mod tests {
                 format!("--name {name:?} must not contain \"..\" components")
             );
         }
+    }
+
+    #[test]
+    fn next_round_is_round_1_when_review_is_missing_or_empty() {
+        let dir = tempfile::tempdir().unwrap();
+        assert_eq!(
+            next_round(&dir.path().join("review")).unwrap(),
+            "round-1.md"
+        );
+        fs::create_dir(dir.path().join("review")).unwrap();
+        assert_eq!(
+            next_round(&dir.path().join("review")).unwrap(),
+            "round-1.md"
+        );
+    }
+
+    #[test]
+    fn next_round_follows_the_highest_round_without_filling_gaps() {
+        let dir = tempfile::tempdir().unwrap();
+        for file in ["round-1.md", "round-3.md"] {
+            fs::write(dir.path().join(file), "").unwrap();
+        }
+        assert_eq!(next_round(dir.path()).unwrap(), "round-4.md");
+    }
+
+    #[test]
+    fn next_round_ignores_entries_that_are_not_round_files() {
+        let dir = tempfile::tempdir().unwrap();
+        for file in [
+            "round-01.md",
+            "notes.md",
+            "round-2.md.bak",
+            "round-0.md",
+            "round-.md",
+            "round-x.md",
+        ] {
+            fs::write(dir.path().join(file), "").unwrap();
+        }
+        fs::create_dir(dir.path().join("round-2")).unwrap();
+        assert_eq!(next_round(dir.path()).unwrap(), "round-1.md");
+        fs::write(dir.path().join("round-12.md"), "").unwrap();
+        assert_eq!(next_round(dir.path()).unwrap(), "round-13.md");
     }
 }
