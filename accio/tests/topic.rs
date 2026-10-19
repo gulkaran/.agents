@@ -65,3 +65,109 @@ fn topic_current_with_a_stale_marker_exits_1_with_hint() {
             gone.display()
         ));
 }
+
+#[test]
+fn topic_use_creates_the_folder_and_marker_then_reuses_them() {
+    let h = Harness::new();
+    h.accio()
+        .args(["vault", "set"])
+        .arg(h.vault.path())
+        .assert()
+        .success();
+    let topic = fs::canonicalize(h.vault.path())
+        .unwrap()
+        .join("projects/agents/topics/http-retry-budget");
+    let marker = h.work.path().join(".topic");
+
+    h.accio_in(h.work.path())
+        .args(["topic", "use", "http-retry-budget"])
+        .assert()
+        .success()
+        .stdout(format!("created {}\n", topic.display()));
+
+    assert!(topic.is_dir());
+    assert_eq!(
+        fs::read_to_string(&marker).unwrap(),
+        format!("{}\n", topic.display())
+    );
+
+    h.accio_in(h.work.path())
+        .args(["topic", "use", "http-retry-budget"])
+        .assert()
+        .success()
+        .stdout(format!("using {}\n", topic.display()));
+
+    assert_eq!(
+        fs::read_to_string(&marker).unwrap(),
+        format!("{}\n", topic.display())
+    );
+}
+
+#[test]
+fn topic_use_switches_the_marker_to_another_topic() {
+    let h = Harness::new();
+    h.accio()
+        .args(["vault", "set"])
+        .arg(h.vault.path())
+        .assert()
+        .success();
+    let topics = fs::canonicalize(h.vault.path())
+        .unwrap()
+        .join("projects/agents/topics");
+    h.accio_in(h.work.path())
+        .args(["topic", "use", "first"])
+        .assert()
+        .success();
+
+    h.accio_in(h.work.path())
+        .args(["topic", "use", "second"])
+        .assert()
+        .success()
+        .stdout(format!("created {}\n", topics.join("second").display()));
+
+    assert!(topics.join("first").is_dir());
+    assert_eq!(
+        fs::read_to_string(h.work.path().join(".topic")).unwrap(),
+        format!("{}\n", topics.join("second").display())
+    );
+}
+
+#[test]
+fn topic_use_derives_a_lowercase_project_from_the_origin_repository() {
+    let h = Harness::new();
+    h.accio()
+        .args(["vault", "set"])
+        .arg(h.vault.path())
+        .assert()
+        .success();
+    h.git(
+        h.work.path(),
+        &["remote", "set-url", "origin", "https://github.com/Shopify/World.git"],
+    );
+    let topic = fs::canonicalize(h.vault.path())
+        .unwrap()
+        .join("projects/world/topics/checkout-retries");
+
+    h.accio_in(h.work.path())
+        .args(["topic", "use", "checkout-retries"])
+        .assert()
+        .success()
+        .stdout(format!("created {}\n", topic.display()));
+
+    assert!(topic.is_dir());
+}
+
+#[test]
+fn topic_use_without_a_vault_exits_1_with_hint_and_writes_nothing() {
+    let h = Harness::new();
+
+    h.accio_in(h.work.path())
+        .args(["topic", "use", "http-retry-budget"])
+        .assert()
+        .code(1)
+        .stdout("")
+        .stderr("accio: no vault configured; run accio vault set <path>\n");
+
+    assert!(!h.work.path().join(".topic").exists());
+    assert!(!h.vault.path().join("projects").exists());
+}
