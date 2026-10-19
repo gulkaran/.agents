@@ -127,4 +127,29 @@ mod tests {
             "fallback"
         );
     }
+
+    #[test]
+    fn derived_project_is_lowercased_before_validation() {
+        let toplevel = Path::new("/work/checkout");
+        assert_eq!(
+            derive_project(Some("https://github.com/Shopify/World.git"), toplevel).unwrap(),
+            "world"
+        );
+        assert_eq!(derive_project(None, Path::new("/work/World")).unwrap(), "world");
+    }
+
+    #[test]
+    fn derived_project_that_is_not_kebab_case_asks_for_project_flag() {
+        let toplevel = Path::new("/work/checkout");
+        let err = derive_project(Some("git@github.com:owner/Some_Repo.git"), toplevel).unwrap_err();
+        assert_eq!(
+            err.to_string(),
+            "derived project \"some_repo\" is not kebab-case; pass --project <name>"
+        );
+        let err = derive_project(None, Path::new("/work/.")).unwrap_err();
+        assert_eq!(
+            err.to_string(),
+            "derived project \"\" is not kebab-case; pass --project <name>"
+        );
+    }
 }
