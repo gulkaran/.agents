@@ -1,6 +1,9 @@
-//! The eight artifacts a topic folder can hold, in canonical order.
+//! The eight artifacts a topic folder can hold, in canonical order, and the
+//! rules for naming an entry under a directory artifact.
 
-use std::path::Path;
+use std::path::{Component, Path};
+
+use anyhow::{Result, bail};
 
 pub enum Kind {
     File,
@@ -67,6 +70,26 @@ pub const ALL: [Artifact; 8] = [
         path: "review",
     },
 ];
+
+/// Accepts a `--name` that stays inside its directory artifact: relative,
+/// non-empty, and free of `..` components. The name is otherwise used
+/// verbatim, so `screenshots/login.png` names a file in a subfolder.
+pub fn validate_name(name: &str) -> Result<()> {
+    if name.is_empty() {
+        bail!("--name must not be empty");
+    }
+    let path = Path::new(name);
+    if path.is_absolute() {
+        bail!("--name {name:?} must be a relative path");
+    }
+    if path
+        .components()
+        .any(|component| component == Component::ParentDir)
+    {
+        bail!("--name {name:?} must not contain \"..\" components");
+    }
+    Ok(())
+}
 
 #[cfg(test)]
 mod tests {
