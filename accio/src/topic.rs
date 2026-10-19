@@ -1,6 +1,8 @@
 //! The current topic: the marker at the git toplevel, the exclude line that
 //! hides it, and the project and slug names that locate a topic in the vault.
 
+use std::path::Path;
+
 use anyhow::{Result, bail};
 
 /// The shape every project name and slug must have.
@@ -13,6 +15,35 @@ pub fn validate_name(kind: &str, name: &str) -> Result<()> {
         bail!("{kind} {name:?} must match {NAME_RULE}");
     }
     Ok(())
+}
+
+/// The default project name: the repository name from the `origin` URL, or
+/// the toplevel directory name when there is no `origin`, with leading dots
+/// dropped so `gulkaran/.agents` becomes `agents`.
+pub fn derive_project(origin: Option<&str>, toplevel: &Path) -> Result<String> {
+    let from_origin = origin
+        .map(repository_name)
+        .filter(|name| !name.is_empty());
+    let derived = match from_origin {
+        Some(name) => name,
+        None => toplevel
+            .file_name()
+            .map(|name| name.to_string_lossy().trim_start_matches('.').to_string())
+            .unwrap_or_default(),
+    };
+    Ok(derived)
+}
+
+/// The text after the last `/` or `:` of a remote URL, without a trailing `/`,
+/// a `.git` suffix, or leading dots.
+fn repository_name(url: &str) -> String {
+    let trimmed = url.trim_end_matches('/');
+    let trimmed = trimmed.strip_suffix(".git").unwrap_or(trimmed);
+    let name = trimmed
+        .rsplit(['/', ':'])
+        .next()
+        .unwrap_or(trimmed);
+    name.trim_start_matches('.').to_string()
 }
 
 /// Lowercase ASCII letters and digits in hyphen-separated runs, with no run
