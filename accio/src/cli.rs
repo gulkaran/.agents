@@ -54,7 +54,13 @@ pub enum ConfigCommand {
 pub enum TopicCommand {
     /// Create the topic folder when missing and point this checkout's
     /// .topic marker at it.
-    Use { slug: String },
+    Use {
+        slug: String,
+        /// Project to file the topic under instead of the one derived from
+        /// the origin remote.
+        #[arg(long)]
+        project: Option<String>,
+    },
     /// Print the topic the .topic marker at the git toplevel points to.
     Current,
 }

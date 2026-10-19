@@ -10,15 +10,24 @@ use crate::topic;
 
 pub fn run(ctx: &Context, command: TopicCommand) -> Result<()> {
     match command {
-        TopicCommand::Use { slug } => use_topic(ctx, &slug),
+        TopicCommand::Use { slug, project } => use_topic(ctx, &slug, project),
         TopicCommand::Current => current(ctx),
     }
 }
 
-fn use_topic(ctx: &Context, slug: &str) -> Result<()> {
+fn use_topic(ctx: &Context, slug: &str, project: Option<String>) -> Result<()> {
+    topic::validate_name("slug", slug)?;
+    if let Some(name) = &project {
+        topic::validate_name("project", name)?;
+    }
     let toplevel = ctx.toplevel()?;
-    let origin = git::run(toplevel, &["remote", "get-url", "origin"]).ok();
-    let project = topic::derive_project(origin.as_deref(), toplevel)?;
+    let project = match project {
+        Some(name) => name,
+        None => {
+            let origin = git::run(toplevel, &["remote", "get-url", "origin"]).ok();
+            topic::derive_project(origin.as_deref(), toplevel)?
+        }
+    };
     let path = ctx
         .vault()?
         .join("projects")
