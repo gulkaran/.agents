@@ -34,8 +34,11 @@ pub enum Command {
         artifact: String,
         /// Entry under a directory artifact, used verbatim; a subfolder in
         /// it is created too.
-        #[arg(long)]
+        #[arg(long, conflicts_with = "next")]
         name: Option<String>,
+        /// The next unused review/round-<n>.md.
+        #[arg(long)]
+        next: bool,
     },
 }
 

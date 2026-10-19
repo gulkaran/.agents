@@ -33,6 +33,10 @@ fn run(command: Command) -> Result<()> {
         Command::Vault(command) => commands::vault::run(&ctx, command),
         Command::Config(command) => commands::config::run(&ctx, command),
         Command::Topic(command) => commands::topic::run(&ctx, command),
-        Command::Path { artifact, name } => commands::path::run(&ctx, &artifact, name.as_deref()),
+        Command::Path {
+            artifact,
+            name,
+            next,
+        } => commands::path::run(&ctx, &artifact, name.as_deref(), next),
     }
 }

@@ -6,7 +6,7 @@ use anyhow::{Context as _, Result, anyhow, bail};
 use crate::artifact::{self, Kind};
 use crate::context::Context;
 
-pub fn run(ctx: &Context, artifact: &str, name: Option<&str>) -> Result<()> {
+pub fn run(ctx: &Context, artifact: &str, name: Option<&str>, next: bool) -> Result<()> {
     let artifact = artifact::find(artifact)?;
     if let Some(name) = name {
         if let Kind::File = artifact.kind {
@@ -17,14 +17,22 @@ pub fn run(ctx: &Context, artifact: &str, name: Option<&str>) -> Result<()> {
         }
         artifact::validate_name(name)?;
     }
+    if next && artifact.name != "review" {
+        bail!("--next applies only to review; run accio path review --next");
+    }
     let path = ctx.topic()?.path.join(artifact.path);
-    let path = match (&artifact.kind, name) {
-        (Kind::File, _) => path,
-        (Kind::Directory, None) => {
+    let path = match (&artifact.kind, name, next) {
+        (Kind::File, ..) => path,
+        (Kind::Directory, None, false) => {
             ensure_dir(&path)?;
             path
         }
-        (Kind::Directory, Some(name)) => {
+        (Kind::Directory, None, true) => {
+            let round = artifact::next_round(&path)?;
+            ensure_dir(&path)?;
+            path.join(round)
+        }
+        (Kind::Directory, Some(name), _) => {
             let entry = path.join(name);
             let dir = entry
                 .parent()
