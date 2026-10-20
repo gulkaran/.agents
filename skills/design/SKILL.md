@@ -12,9 +12,9 @@ the full technical design in `design.md`. Make no production code changes.
 
 ## 1. Check the chosen approach
 
-Read the approved investigation and the user's decisions. If the approach is
-unsettled, return to investigation. Read `../_shared/config.md` and its local
-override, when present, for the handoff destination.
+Run `accio path investigation` and read the approved investigation and the
+user's decisions. If Accio reports no topic, stop and tell the user to run
+investigate first. If the approach is unsettled, return to investigation.
 
 Inspect the affected code, persisted data, callers, and external contracts.
 Establish how the system works today and where the changes belong. Use the
@@ -27,9 +27,10 @@ the approach, or another uncertainty that could make it infeasible. Give the
 agent a specific question, pass and fail criteria, and an isolated temporary
 workspace. Keep its code out of production.
 
-Record what the spike tested, the result, and its limits. A pass proves only
-the tested capability. Design the production solution around the codebase's
-architecture, not the spike's shortcuts.
+Run `accio path feasibility --name <assumption>.md` and record what the spike
+tested, the result, and its limits at the printed path. Cite that file from
+`design.md`. A pass proves only the tested capability. Design the production
+solution around the codebase's architecture, not the spike's shortcuts.
 
 If existing evidence already settles the question, explain why instead of
 running a spike. If the spike disproves the approach, stop. Report the evidence
@@ -111,18 +112,10 @@ The document may hold more detail than the chat, but no decision the user never
 saw. If writing reveals a new consequential choice, return to the user before
 recording it.
 
-Use the destination the user or calling workflow supplies. Otherwise write to
-`<vault_path>/<project>/topics/<slug>/design.md` from the shared config, with
-the repository name as the project and a short topic slug. Reuse the known
-topic folder when continuing existing work.
-
-Do not load the topic-state protocol or manage its checksum approvals. Commit
-only `design.md` in the Git repository that contains it, preserving unrelated
-staged changes. If the destination is not in a Git repository or the commit
-fails, keep the document and report the missing commit.
-
-Return the saved path and commit hash when available, then stop before
-implementation.
+- Run `accio path design` and write `design.md` at the printed path.
+- Commit with `accio commit -m "add design"`.
+- Return the path and the commit line Accio prints, then stop before
+  implementation.
 
 ## When not to use
 

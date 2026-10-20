@@ -15,13 +15,11 @@ whether an approach can meet the requirements.
 
 ## 1. Research the problem
 
+- Run `accio topic use <slug>` with a short kebab-case slug for this work.
+  Reuse the slug when revising an investigation.
 - Establish current behavior, relevant code paths, callers, persisted data,
   external contracts, and constraints. Research prior art where useful. Check
   external claims against current primary sources and the project's versions.
-- Read `../_shared/config.md` and its local override when present. Group independent
-  factual questions by code area or source. Use read-only scouts under
-  `../_shared/scout.md`, supplying the request, repository, unknowns, and questions.
-  The main agent owns the interview and recommendation.
 - For a bug, trace the trigger through the code to the failure. Reproduce it when
   possible. Separate observations, facts established by the code, inferences,
   and what you could not check. Treat possible causes as hypotheses until the
@@ -124,14 +122,6 @@ After approval, write only `investigation.md` for the design agent. Include:
 Separate confirmed user decisions from your inferences. Add supporting detail
 without introducing decisions the user never saw.
 
-Use the destination supplied by the user or calling workflow. Otherwise use
-`<vault_path>/<project>/topics/<slug>/investigation.md` from the shared config,
-with the repository name as the project and a short topic slug. Reuse the known
-topic folder when continuing existing work.
-
-Do not load the topic-state protocol. Commit only `investigation.md` in the
-Git repository containing it, preserving unrelated staged changes. If the
-destination is not in a Git repository or the commit fails, retain the document
-and report the missing commit.
-
-Return the saved path and commit hash when available, then stop before design.
+- Run `accio path investigation` and write `investigation.md` at the printed path.
+- Commit with `accio commit -m "add investigation"`.
+- Return the path and the commit line Accio prints, then stop before design.
