@@ -21,8 +21,14 @@ pub fn run(ctx: &Context, artifact: &str, name: Option<&str>, next: bool) -> Res
         bail!("--next applies only to review; run accio path review --next");
     }
     let path = ctx.topic()?.path.join(artifact.path);
+    // A file artifact or `--name` entry may be one the caller is about to
+    // read, so a missing one gets a note on stderr. stdout stays the bare
+    // path, and the exit stays 0 because callers also ask for paths to write.
     let path = match (&artifact.kind, name, next) {
-        (Kind::File, ..) => path,
+        (Kind::File, ..) => {
+            note_if_missing(&path);
+            path
+        }
         (Kind::Directory, None, false) => {
             ensure_dir(&path)?;
             path
@@ -34,11 +40,19 @@ pub fn run(ctx: &Context, artifact: &str, name: Option<&str>, next: bool) -> Res
         }
         (Kind::Directory, Some(name), _) => {
             ensure_dir(&path.join(entry_dir(name)))?;
-            path.join(name)
+            let path = path.join(name);
+            note_if_missing(&path);
+            path
         }
     };
     println!("{}", path.display());
     Ok(())
+}
+
+fn note_if_missing(path: &Path) {
+    if !path.exists() {
+        eprintln!("accio: {} does not exist yet", path.display());
+    }
 }
 
 fn ensure_dir(dir: &Path) -> Result<()> {

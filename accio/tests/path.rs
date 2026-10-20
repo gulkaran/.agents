@@ -15,7 +15,7 @@ const FILE_ARTIFACTS: [(&str, &str); 4] = [
 const DIRECTORY_ARTIFACTS: [&str; 4] = ["research", "feasibility", "verification", "review"];
 
 #[test]
-fn path_prints_each_file_artifact_without_creating_it() {
+fn path_prints_each_missing_file_artifact_with_a_note_and_without_creating_it() {
     let h = Harness::new();
     let topic = h.topic_with_marker("accio-cli");
 
@@ -24,8 +24,28 @@ fn path_prints_each_file_artifact_without_creating_it() {
             .args(["path", artifact])
             .assert()
             .success()
-            .stdout(format!("{}\n", topic.join(file).display()));
+            .stdout(format!("{}\n", topic.join(file).display()))
+            .stderr(format!(
+                "accio: {} does not exist yet\n",
+                topic.join(file).display()
+            ));
         assert!(!topic.join(file).exists(), "{file} must not be created");
+    }
+}
+
+#[test]
+fn path_prints_each_existing_file_artifact_without_a_note() {
+    let h = Harness::new();
+    let topic = h.topic_with_marker("accio-cli");
+
+    for (artifact, file) in FILE_ARTIFACTS {
+        fs::write(topic.join(file), "").unwrap();
+        h.accio_in(h.work.path())
+            .args(["path", artifact])
+            .assert()
+            .success()
+            .stdout(format!("{}\n", topic.join(file).display()))
+            .stderr("");
     }
 }
 
@@ -40,7 +60,8 @@ fn path_prints_and_creates_each_directory_artifact() {
             .args(["path", artifact])
             .assert()
             .success()
-            .stdout(format!("{}\n", topic.join(artifact).display()));
+            .stdout(format!("{}\n", topic.join(artifact).display()))
+            .stderr("");
         assert!(topic.join(artifact).is_dir(), "{artifact} must be created");
         h.accio_in(h.work.path())
             .args(["path", artifact])
@@ -97,10 +118,32 @@ fn path_name_prints_the_entry_and_creates_only_its_directory() {
         .stdout(format!(
             "{}\n",
             topic.join("research/evidence.md").display()
+        ))
+        .stderr(format!(
+            "accio: {} does not exist yet\n",
+            topic.join("research/evidence.md").display()
         ));
 
     assert!(topic.join("research").is_dir());
     assert!(!topic.join("research/evidence.md").exists());
+}
+
+#[test]
+fn path_name_of_an_existing_entry_prints_it_without_a_note() {
+    let h = Harness::new();
+    let topic = h.topic_with_marker("accio-cli");
+    fs::create_dir(topic.join("research")).unwrap();
+    fs::write(topic.join("research/evidence.md"), "").unwrap();
+
+    h.accio_in(h.work.path())
+        .args(["path", "research", "--name", "evidence.md"])
+        .assert()
+        .success()
+        .stdout(format!(
+            "{}\n",
+            topic.join("research/evidence.md").display()
+        ))
+        .stderr("");
 }
 
 #[test]
@@ -205,7 +248,8 @@ fn path_review_next_prints_round_1_and_creates_review_when_missing() {
         .args(["path", "review", "--next"])
         .assert()
         .success()
-        .stdout(format!("{}\n", topic.join("review/round-1.md").display()));
+        .stdout(format!("{}\n", topic.join("review/round-1.md").display()))
+        .stderr("");
 
     assert!(topic.join("review").is_dir());
     assert!(!topic.join("review/round-1.md").exists());
