@@ -9,14 +9,13 @@ leaves file contents to the agent.
 
 ```
 cd ~/.agents/accio
-just install
+cargo install --locked --path . --root "$HOME/.local"
 accio vault set ~/Desktop/vault
 ```
 
-`just install` runs `cargo install --locked --path . --root ~/.local` with
-`~/.cargo/bin` on `PATH`, so it works from shells that do not have cargo on
-`PATH`, and puts the binary at `~/.local/bin/accio`. `vault set` is a one-time
-step per machine; it records the vault root in the config file.
+The install command requires Rust and Cargo on `PATH` and puts the binary at
+`~/.local/bin/accio`. Ensure `~/.local/bin` is on `PATH`. `vault set` is a
+one-time step per machine; it records the vault root in the config file.
 
 ## Commands
 
@@ -116,7 +115,7 @@ stdin, never prompts, and never runs `git push`.
 ## Development
 
 ```
-just test
+cargo test
 cargo fmt --check
 cargo clippy --all-targets -- -D warnings
 ```
