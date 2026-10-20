@@ -1,69 +1,137 @@
 ---
 name: investigate
-description: Research a confirmed brief and present an approach and complete scope for the human to choose. Use for "investigate this", exploring an implementation approach, or revisiting a topic after new evidence.
+description: Research a feature or bug, establish requirements through questioning, and recommend an approach.
 disable-model-invocation: true
 ---
 
 # Investigate
 
-Research the confirmed brief and present an approach for the human to choose.
-Account for every requested capability. Make no production code changes.
+Find out what to build and why. Research the problem, interview the user, and
+recommend an approach. The interview is required even when the request looks
+complete. Make no production code changes.
 
-## 1. Read the brief
+Leave implementation details to design. Research them here when they determine
+whether an approach can meet the requirements.
 
-Read `../_shared/config.md` and `../_shared/topic.md`. Resolve the topic and
-check brief approval. If missing, use `../grill-me/SKILL.md` to prepare and
-confirm it from existing context.
+## 1. Research the problem
 
-Read the brief, decisions, and linked issue comments. Reuse settled answers.
-Use the topic protocol's revision transition for a changed goal.
+- Establish current behavior, relevant code paths, callers, persisted data,
+  external contracts, and constraints. Research prior art where useful. Check
+  external claims against current primary sources and the project's versions.
+- Read `../_shared/config.md` and its local override when present. Group independent
+  factual questions by code area or source. Use read-only scouts under
+  `../_shared/scout.md`, supplying the request, repository, unknowns, and questions.
+  The main agent owns the interview and recommendation.
+- For a bug, trace the trigger through the code to the failure. Reproduce it when
+  possible. Separate observations, facts established by the code, inferences,
+  and what you could not check. Treat possible causes as hypotheses until the
+  evidence supports them.
+- Cite file paths and lines or source URLs.
 
-## 2. Gather evidence
+Research enough to explain the problem and ask informed questions. Keep evidence
+in chat until the final handoff. Recommend an approach after the interview and
+targeted research.
 
-Group factual questions by code area or source. Launch read-only scouts under
-`../_shared/scout.md` for independent questions, supplying relevant requirements,
-unknowns, repository path, and questions.
+## 2. Explain what you found
 
-Research current behavior, callers, persisted data, external contracts,
-constraints, and prior art. Check claims against code or cited primary sources.
-Use current online sources for external facts that matter.
+Give the user enough context to make decisions. Use ASD-STE100 Simplified
+Technical English. Write short sentences, name the actor, and explain technical
+terms when they first matter.
 
-Save findings in `research/<subject>.md`, separating facts, assumptions, and
-what could not be checked.
+- For a bug, explain the issue, impact, and root cause or remaining hypotheses.
+  Walk through one concrete failure, then show the code trace and evidence.
+- For a feature, explain current behavior, the requested change, and the
+  constraints the interview must resolve.
 
-## 3. Resolve new decisions
+Example of a bug explanation:
 
-When evidence raises a product decision, explain the evidence and consequence,
-then ask a focused question. Reuse the interview's answers; do not silently replace a
-requirement. A constraint that changes the brief needs confirmation under the
-topic protocol. Leave detailed implementation choices to design.
+> You cancel the delivery. The screen hides it, but the queued job still runs.
+> The worker does not check whether the delivery was cancelled, so it sends it.
 
-## 4. Propose the approach
+## 3. Ask the user questions
 
-Write `investigation.md` with current behavior, the recommendation, credible
-alternatives, trade-offs, and uncertainties. Account for each brief requirement
-as included, proposed for deferral, or unresolved. The human decides deferrals.
-One credible approach is enough; do not invent alternatives.
+Interview the user until every decision within scope is settled. Organize
+requirements, scope, and acceptable trade-offs as a tree of dependent decisions.
 
-Explain the change with a concrete example:
+- For a feature, settle desired behavior, scope, UX, constraints, and acceptance criteria.
+- For a bug, settle expected versus actual behavior, impact, acceptable fixes,
+  behavior to preserve, and regression requirements.
 
-> Today, cancelling a delivery only hides it. The sender can still send it.
-> Cancellation would prevent deliveries that have not started. Cancelling a delivery
-> already in progress remains outside scope unless you choose otherwise.
+Work in rounds:
 
-Describe behavior to preserve, surprising consequences, and likely costs such
-as a migration. Leave the technical contract to design.
+1. Identify all decisions whose prerequisites are settled. This is the frontier.
+   Pending answers and lookups block only the questions that depend on them.
+2. Ask the whole frontier. Number each question, explain the choice, and give
+   an explicit recommendation. Word it so "yes" accepts your recommendation
+   and "yes to all" accepts the round.
+3. Wait for the user's answers, then recompute the frontier. Reuse settled
+   answers unless new evidence changes them.
 
-## 5. Present and record the choice
+Look up facts yourself. Put decisions to the user and wait. Ask independent
+questions while lookups run.
 
-Save and commit the report. Use `../wait-what/SKILL.md` to explain the proposal,
-full scope, exclusions, and open choices in chat. Wait for the human's choice
-of approach and scope.
+Use this question format, including the emojis:
 
-Record the choice in `decisions.md` and the checksum approval in `_state.md`.
-Set phase `designing` and commit the checkpoint under the topic protocol.
+> ❓ **Q1. Cancellation scope.** Should cancellation prevent deliveries that have
+> not started, while leaving deliveries already in progress outside this change?
+>
+> ➡️ Recommended: Yes. A delivery already being sent may be impossible to recall.
 
-## When not to use
+When every branch is settled, restate the agreed requirements, observable
+acceptance criteria, exclusions, and accepted trade-offs in chat. Wait for the
+user to confirm this shared understanding before proceeding. This confirmation
+is required even for a fully specified request.
 
-Use `grill-me` to establish intent, or `research` for a factual question that
-does not choose or change the workflow's approach.
+## 4. Check what the answers changed
+
+Check which assumptions the answers changed and whether the evidence covers
+every agreed requirement. Revise or discard approaches that no longer fit.
+
+Investigate remaining gaps. If new evidence raises a decision or changes
+requirements, explain it, return to the interview, and confirm the changed
+requirements before proceeding.
+
+## 5. Recommend an approach
+
+Recommend the approach that best meets the confirmed requirements. The user
+decides exclusions and deferrals. Resolve open choices and present these in
+order, with enough detail to decide in chat.
+
+- **Recap.** Briefly summarize the problem and agreed requirements. Expand on
+  changed findings or details needed to assess the approach.
+- **The approach.** What to build or change, why it meets every acceptance
+  criterion, behavior to preserve, and material consequences such as a migration.
+  Leave implementation details to design.
+- **Alternatives and uncertainties.** Compare credible alternatives when they
+  exist. Explain your preference, what remains unproven, and what design must resolve.
+- **The decision.** Ask, "Do you approve this approach and scope?" Wait for approval
+  separately from requirements confirmation. If the scope changes, revisit the
+  affected questions and evidence before presenting a revised recommendation.
+
+## 6. Write the handoff
+
+After approval, write only `investigation.md` for the design agent. Include:
+
+- The full problem explanation, including current behavior, who it affects,
+  and a concrete example. For a bug, include the failure trace, cause, and how
+  certain you are.
+- Confirmed requirements with stable IDs, acceptance criteria, exclusions,
+  and accepted trade-offs.
+- The approved approach, rationale, behavior to preserve, and consequences.
+- Relevant code paths, source citations, research, and reproduction findings.
+- Rejected approaches and reasons, and open design questions.
+
+Separate confirmed user decisions from your inferences. Add supporting detail
+without introducing decisions the user never saw.
+
+Use the destination supplied by the user or calling workflow. Otherwise use
+`<vault_path>/<project>/topics/<slug>/investigation.md` from the shared config,
+with the repository name as the project and a short topic slug. Reuse the known
+topic folder when continuing existing work.
+
+Do not load the topic-state protocol. Commit only `investigation.md` in the
+Git repository containing it, preserving unrelated staged changes. If the
+destination is not in a Git repository or the commit fails, retain the document
+and report the missing commit.
+
+Return the saved path and commit hash when available, then stop before design.
