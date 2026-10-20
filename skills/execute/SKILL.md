@@ -12,14 +12,13 @@ the human. Material drift interrupts execution before the affected work proceeds
 
 ## 1. Check the contract
 
-Read `../_shared/config.md` and `../_shared/topic.md`. Resolve the topic and
-verify all three approval checksums. Read the brief, investigation, design,
-decisions, and feasibility evidence.
+Run `accio topic current --path` and read `investigation.md`, `design.md`,
+`decisions.md`, and `feasibility/` in that folder. If Accio reports no topic,
+stop and tell the user to run investigate first. The PR plan in `design.md` is
+the contract.
 
-Reconcile existing branches, PRs, and `execution/` handoffs before resuming.
+Before resuming, compare that PR plan with existing branches and open PRs.
 Do not recreate a completed PR or overwrite an active worker's changes.
-Initialize missing PR entries from the approved design and set phase
-`executing`.
 
 ## 2. Launch a PR worker
 
@@ -31,27 +30,29 @@ conversation per PR.
 
 Use the session model unless the user or orchestrator specifies another.
 Run workers sequentially in dependency order, with one application writer.
-Fresh context does not require a new worktree. Record the active PR and worker
-under `execution` in state. Save the PR before launch and the worker ID as soon
-as the launch returns; reconcile both before another writer starts.
+Fresh context does not require a new worktree. Reconcile a worker's branch and
+PR before another writer starts.
 
 A missing delegation capability is a reported blocker; do not silently build
 the whole stack in the coordinator.
 
 ## 3. Handle the handoff
 
-Verify the worker's branch, base, commits, PR URL, and reported checks.
-Read its `execution/<pr-id>.md`, update the PR entry, and commit vault changes.
-Pass the verified handoff to workers that depend on it.
+Verify the worker's branch, base, commits, PR URL, and reported checks against
+the handoff it returned. When it reports deviations, append them to
+`decisions.md` and commit with `accio commit -m "record <pr-id>"`. Pass the
+verified handoff to workers that depend on it.
 
 Check that the worker followed the contract's sequence: TDD, committed green
 implementation, separate deslop cleanup, fresh verification of the final
 revision, then PR creation with inspected evidence. Never launch code
 simplification automatically.
 
-Apply the shared drift policy. Return material questions to the human with
-their consequence and options. A failed required check or unavailable verification
-blocks claiming that PR complete; report the gap without manufacturing evidence.
+Material drift is a changed acceptance criterion, public contract, dependency,
+storage or migration plan, PR boundary, or a disproven design assumption.
+Return it to the human with its consequence and options. A failed required
+check or unavailable verification blocks claiming that PR complete. Report the
+gap without manufacturing evidence.
 
 ## 4. Verify the stack
 
@@ -66,7 +67,6 @@ planned capability is missing.
 
 ## 5. Pause for the human
 
-Set phase `in-review`, save the final handoffs, and commit the vault.
 Use `../wait-what/SKILL.md` to report PR links in order, delivered behavior,
 verification, deviations, test edits, and cleanup commit links or deslop no-ops.
 

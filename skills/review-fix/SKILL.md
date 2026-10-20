@@ -10,14 +10,12 @@ Verify each finding, get approval for the fix plan, and commit each fix
 separately. Reply to review threads with the outcome and leave unresolved
 human decisions open.
 
-Read first: `~/.agents/skills/_shared/config.md`,
-`~/.agents/skills/_shared/topic.md`.
-
 ## 1. Gather findings
 
-Resolve the topic and target PR. Read `design.md`, `decisions.md`, that PR's
-latest `review/round-<n>.md`, and its unresolved review threads. Select the
-round for this PR, not another stack member:
+Identify the target PR. Run `accio topic current --path` and read `design.md`,
+`decisions.md`, and that PR's latest `review/round-<n>.md` in that folder,
+then its unresolved review threads. Select the round for this PR, not another
+stack member:
 
 ```bash
 gh api graphql -f query='{ repository(owner: "<owner>", name: "<repo>") {
@@ -25,7 +23,8 @@ gh api graphql -f query='{ repository(owner: "<owner>", name: "<repo>") {
     id isResolved path line comments(first: 20) { nodes { author { login } body } } } } } } }'
 ```
 
-Other trackers: use the recipe `_shared/config.md` names.
+For another tracker, follow `../_shared/trackers/<tracker>.md`, where
+`<tracker>` is the value `accio config get tracker` prints.
 
 ## 2. Verify every finding
 
@@ -42,16 +41,17 @@ Never fix an unverified finding, and never create an artifact to close one. A de
 Read `~/.agents/skills/technical-writing/SKILL.md` immediately before reporting.
 Present verified issues, impact, and proposed fixes, with blockers first.
 Summarize rejected findings by reason. Append every verdict under `## Verdicts`
-in the selected round, log in `_state.md`, and commit the vault before waiting.
+in the selected round and commit with `accio commit -m "add review verdicts"`
+before waiting.
 
 Wait for the human to approve the plan. They may drop, defer, or adjust items.
 
 ## 4. Implement
 
 - One commit per fix: `fix(review): <finding>, <what changed>`.
-- Follow `../tdd/SKILL.md` for behavior fixes and the shared drift policy. Do not launch execute or rebuild the stack. Never weaken a test or silently change behavior beyond the approved finding.
+- Follow `../tdd/SKILL.md` for behavior fixes. Do not launch execute or rebuild the stack. Never weaken a test or silently change behavior beyond the approved finding.
 - Run the relevant tests. Nothing is pushed red.
-- Fixes add no docs, screenshots, or scratch files to the repo. Evidence goes to the topic's `verification/` folder.
+- Fixes add no docs, screenshots, or scratch files to the repo. Evidence goes to the directory `accio path verification --name <pr-id>` prints.
 - Run deslop on the updated PR diff after fixes pass. Any cleanup gets its own commit. Preserve earlier cleanup and simplification commits; never fold them into a fix.
 
 ## 5. Record outcomes
@@ -64,9 +64,7 @@ After pushing:
 - **Round-file-only finding.** Record the outcome in the round file.
 
 Append outcomes under `## Outcomes` in the selected round without changing
-earlier rounds. Log in `_state.md` and set phase `done` only when the human
-confirms nothing remains. Commit outcomes, decisions, verification, and state
-together.
+earlier rounds. Commit with `accio commit -m "add review outcomes"`.
 
 Reread the technical-writing skill before the final handoff. Say what was fixed, whether verification passed, and what still needs attention.
 

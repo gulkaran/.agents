@@ -5,9 +5,8 @@ The execute coordinator launches one fresh worker per planned PR with
 
 ## Input
 
-Pass the repository and topic paths, the shared topic protocol, and the
-approved brief, investigation, design, and decisions. Include their approved
-checksums and the selected approach.
+Pass the repository path, the topic path from `accio topic current --path`,
+and the approved investigation, design, and decisions.
 
 Pass the PR ID, scope, acceptance criteria, test boundaries, branch and base,
 dependencies, and verified handoffs from completed PRs. Include feasibility
@@ -20,9 +19,9 @@ and does not require a work/personal answer.
 
 ## Work
 
-1. Confirm the assigned checkout is safe to use. Read repository instructions
-   and verify approval checksums. Create or select the assigned branch from
-   the verified base. Never discard unrelated changes to switch branches.
+1. Confirm the assigned checkout is safe to use. Read repository instructions.
+   Create or select the assigned branch from the verified base. Never discard
+   unrelated changes to switch branches.
 2. Before implementation, capture relevant before evidence when tools allow,
    using `../../verify/SKILL.md` in baseline-only mode to discover an app skill
    or use the generic flow.
@@ -34,8 +33,9 @@ and does not require a work/personal answer.
    Never weaken assertions to make the implementation pass.
    Record post-red test edits and their reasons.
 3. Use the design's feasibility evidence. A new assumption that could invalidate
-   the design needs a focused experiment and a drift report. Keep experiment
-   files in the topic's `feasibility/` folder.
+   the design needs a focused experiment and a drift report. Run
+   `accio path feasibility --name <assumption>.md` and keep the experiment
+   notes at the printed path.
 4. Save screenshots and useful diagnostics in the supplied evidence directory.
    Missing optional capture is a reported gap, not a fabricated substitute.
 5. Keep production changes within the PR scope. Keep required or explicitly
@@ -59,16 +59,16 @@ and does not require a work/personal answer.
    Pass the verification summary, gaps, inspected screenshot paths, and captions
    so the PR description contains uploaded evidence. Verify the posted body.
    Verify that the diff contains only this PR's changes. Do not merge it.
-9. Write `execution/<pr-id>.md` and return. Do not launch the next worker,
-   approve a change, or commit the vault.
+9. Return the handoff below. Do not launch the next worker, approve a change,
+   or commit the vault.
 
-Material drift or a required check that cannot pass stops this worker. Save
-the partial handoff and report the blocker to the coordinator. Do not drop
+Material drift or a required check that cannot pass stops this worker. Return
+the partial handoff and the blocker to the coordinator. Do not drop
 acceptance criteria or conceal failures to open a PR.
 
 ## Handoff
 
-Record:
+Return:
 
 - PR ID, scope, branch, base, URL, and verified head.
 - Requirement IDs delivered and any remaining work.
@@ -79,12 +79,13 @@ Record:
 - Deslop commit links or a verified no-op.
 - Deviations and dependency details the next worker needs.
 
-The coordinator owns state and vault commits. The worker may append decisions
+The coordinator owns vault commits. The worker may append to `decisions.md`
 but cannot turn its own recommendation into human approval.
 
 ## Resume
 
-Reconcile a recorded worker before launching another writer. Reuse a live
-worker or inspect its branch and handoff after interruption. A replacement
-gets a fresh context with the saved partial handoff. Check for an existing PR
-before opening one. Preserve completed commits and cleanup separation.
+Reconcile an interrupted worker before launching another writer. Reuse a live
+worker or inspect its branch after interruption. A replacement gets a fresh
+context with the partial handoff the interrupted worker returned. Check for an
+existing PR before opening one. Preserve completed commits and cleanup
+separation.
