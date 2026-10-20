@@ -1,6 +1,11 @@
 //! Shared fixtures for the integration tests: a temporary `HOME`, a vault
-//! repository with one commit, and `git` and `accio` commands that never read
-//! the real user configuration or reach the network.
+//! repository with one commit, a work repository with an `origin` URL, and
+//! `git` and `accio` commands that never read the real user configuration or
+//! reach the network.
+
+// Each test binary compiles its own copy of this module and uses a different
+// subset of it.
+#![allow(dead_code)]
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -11,6 +16,7 @@ use tempfile::TempDir;
 pub struct Harness {
     pub home: TempDir,
     pub vault: TempDir,
+    pub work: TempDir,
 }
 
 impl Harness {
@@ -18,8 +24,19 @@ impl Harness {
         let home = tempfile::tempdir().unwrap();
         fs::write(home.path().join("gitconfig"), "").unwrap();
         let vault = tempfile::tempdir().unwrap();
-        let harness = Harness { home, vault };
+        let work = tempfile::tempdir().unwrap();
+        let harness = Harness { home, vault, work };
         harness.init_repo(harness.vault.path());
+        harness.init_repo(harness.work.path());
+        harness.git(
+            harness.work.path(),
+            &[
+                "remote",
+                "add",
+                "origin",
+                "git@github.com:gulkaran/.agents.git",
+            ],
+        );
         harness
     }
 
@@ -28,10 +45,15 @@ impl Harness {
         self.home.path().join(".config/accio/config.toml")
     }
 
-    /// `accio` run from the temporary `HOME` with git isolated.
+    /// `accio` run from the temporary `HOME`, which is not a git repository.
     pub fn accio(&self) -> assert_cmd::Command {
+        self.accio_in(self.home.path())
+    }
+
+    /// `accio` run from `dir` with the temporary `HOME` and git isolated.
+    pub fn accio_in(&self, dir: &Path) -> assert_cmd::Command {
         let mut cmd = Command::new(env!("CARGO_BIN_EXE_accio"));
-        cmd.current_dir(self.home.path());
+        cmd.current_dir(dir);
         self.isolate(&mut cmd);
         assert_cmd::Command::from_std(cmd)
     }
@@ -50,6 +72,25 @@ impl Harness {
             String::from_utf8_lossy(&output.stderr)
         );
         String::from_utf8(output.stdout).unwrap()
+    }
+
+    /// Points the work repository at `<vault>/projects/agents/topics/<slug>`
+    /// through `vault set` and `topic use`, and returns that folder's
+    /// canonical path.
+    pub fn topic_with_marker(&self, slug: &str) -> PathBuf {
+        self.accio()
+            .args(["vault", "set"])
+            .arg(self.vault.path())
+            .assert()
+            .success();
+        self.accio_in(self.work.path())
+            .args(["topic", "use", slug])
+            .assert()
+            .success();
+        fs::canonicalize(self.vault.path())
+            .unwrap()
+            .join("projects/agents/topics")
+            .join(slug)
     }
 
     /// Turns `dir` into a git repository with one commit.

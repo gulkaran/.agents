@@ -2,12 +2,13 @@
 //! of string keys to string values.
 
 use std::collections::BTreeMap;
-use std::fs::{self, File};
-use std::io::{self, Write as _};
+use std::fs;
+use std::io;
 use std::path::Path;
-use std::process;
 
 use anyhow::{Context as _, Result, anyhow, bail};
+
+use crate::atomic;
 
 /// The one key accio interprets, written by `vault set`.
 pub const VAULT_KEY: &str = "vault";
@@ -51,28 +52,7 @@ pub fn load(path: &Path) -> Result<Table> {
 /// an interrupted write never leaves a truncated config.
 pub fn save(path: &Path, table: &Table) -> Result<()> {
     let text = toml::to_string(table).context("cannot serialize the config table")?;
-    write_atomically(path, text.as_bytes())
-        .with_context(|| format!("cannot write {}", path.display()))
-}
-
-fn write_atomically(path: &Path, contents: &[u8]) -> Result<()> {
-    let dir = path
-        .parent()
-        .ok_or_else(|| anyhow!("{} has no parent directory", path.display()))?;
-    let name = path
-        .file_name()
-        .ok_or_else(|| anyhow!("{} has no file name", path.display()))?;
-    fs::create_dir_all(dir)?;
-    let temp = dir.join(format!(".{}.{}.tmp", name.to_string_lossy(), process::id()));
-    let written = File::create(&temp).and_then(|mut file| {
-        file.write_all(contents)?;
-        file.sync_all()?;
-        fs::rename(&temp, path)
-    });
-    if written.is_err() {
-        let _ = fs::remove_file(&temp);
-    }
-    Ok(written?)
+    atomic::write(path, text.as_bytes()).with_context(|| format!("cannot write {}", path.display()))
 }
 
 #[cfg(test)]

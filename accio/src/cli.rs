@@ -23,6 +23,30 @@ pub enum Command {
     /// Read and write the flat key-value config file.
     #[command(subcommand)]
     Config(ConfigCommand),
+    /// Create, switch, and query the topic this checkout works on.
+    #[command(subcommand)]
+    Topic(TopicCommand),
+    /// Print the path of an artifact in the current topic, creating its
+    /// directory when missing and never a file.
+    Path {
+        /// One of brief, investigation, design, decisions, research,
+        /// feasibility, verification, review.
+        artifact: String,
+        /// Entry under a directory artifact, used verbatim; a subfolder in
+        /// it is created too.
+        #[arg(long, conflicts_with = "next")]
+        name: Option<String>,
+        /// The next unused review/round-<n>.md.
+        #[arg(long)]
+        next: bool,
+    },
+    /// Commit the current topic folder in the vault repository as
+    /// docs(<slug>): <message>, leaving other staged work staged.
+    Commit {
+        /// Text after `docs(<slug>): ` in the commit subject.
+        #[arg(short, long)]
+        message: String,
+    },
 }
 
 #[derive(Subcommand)]
@@ -42,6 +66,37 @@ pub enum ConfigCommand {
     /// Print every key and value.
     List {
         /// Print a JSON object instead of key: value lines.
+        #[arg(long)]
+        json: bool,
+    },
+}
+
+#[derive(Subcommand)]
+pub enum TopicCommand {
+    /// Create the topic folder when missing and point this checkout's
+    /// .topic marker at it.
+    Use {
+        slug: String,
+        /// Project to file the topic under instead of the one derived from
+        /// the origin remote.
+        #[arg(long)]
+        project: Option<String>,
+    },
+    /// Print the topic the .topic marker at the git toplevel points to.
+    Current {
+        /// Print only the topic folder path.
+        #[arg(long, conflicts_with = "json")]
+        path: bool,
+        /// Print a JSON object instead of key: value lines.
+        #[arg(long)]
+        json: bool,
+    },
+    /// List every topic in the vault as project/slug lines.
+    List {
+        /// Only topics under this project.
+        #[arg(long)]
+        project: Option<String>,
+        /// Print a JSON array instead of project/slug lines.
         #[arg(long)]
         json: bool,
     },

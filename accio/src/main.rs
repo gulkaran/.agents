@@ -1,8 +1,11 @@
+mod artifact;
+mod atomic;
 mod cli;
 mod commands;
 mod config;
 mod context;
 mod git;
+mod topic;
 mod vault;
 
 use std::process::ExitCode;
@@ -29,5 +32,12 @@ fn run(command: Command) -> Result<()> {
     match command {
         Command::Vault(command) => commands::vault::run(&ctx, command),
         Command::Config(command) => commands::config::run(&ctx, command),
+        Command::Topic(command) => commands::topic::run(&ctx, command),
+        Command::Path {
+            artifact,
+            name,
+            next,
+        } => commands::path::run(&ctx, &artifact, name.as_deref(), next),
+        Command::Commit { message } => commands::commit::run(&ctx, &message),
     }
 }

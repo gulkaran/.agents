@@ -3,16 +3,21 @@
 
 use std::cell::OnceCell;
 use std::env;
+use std::fs;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context as _, Result, anyhow};
 
 use crate::config::{self, Table};
+use crate::git;
+use crate::topic::{self, Topic};
 
 pub struct Context {
     cwd: PathBuf,
     config_path: PathBuf,
     config: OnceCell<Table>,
+    toplevel: OnceCell<PathBuf>,
+    topic: OnceCell<Topic>,
 }
 
 impl Context {
@@ -29,6 +34,8 @@ impl Context {
             cwd,
             config_path,
             config: OnceCell::new(),
+            toplevel: OnceCell::new(),
+            topic: OnceCell::new(),
         })
     }
 
@@ -57,5 +64,26 @@ impl Context {
             .get(config::VAULT_KEY)
             .ok_or_else(|| anyhow!("no vault configured; run accio vault set <path>"))?;
         Ok(Path::new(path))
+    }
+
+    /// The root of the git working tree that contains the current directory,
+    /// found on first use.
+    pub fn toplevel(&self) -> Result<&Path> {
+        if let Some(path) = self.toplevel.get() {
+            return Ok(path);
+        }
+        let path = git::run(&self.cwd, &["rev-parse", "--show-toplevel"])
+            .map_err(|_| anyhow!("not inside a git repository; run accio from a checkout"))?;
+        let path = fs::canonicalize(&path).with_context(|| format!("cannot resolve {path}"))?;
+        Ok(self.toplevel.get_or_init(|| path))
+    }
+
+    /// The topic the marker at the toplevel points to, read on first use.
+    pub fn topic(&self) -> Result<&Topic> {
+        if let Some(topic) = self.topic.get() {
+            return Ok(topic);
+        }
+        let topic = topic::read_marker(self.toplevel()?)?;
+        Ok(self.topic.get_or_init(|| topic))
     }
 }
