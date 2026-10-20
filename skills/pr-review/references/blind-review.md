@@ -47,6 +47,10 @@ or topic folders; if you come across one, do not read it.
   wrong result. No case, no finding.
 - Re-read the lines and confirm: the caller exists, the value can really be
   empty, the code really is unused.
+- If a finding's existence, severity, or fix depends on an open question,
+  answer it before you report, even when the answer lives in another repo or
+  an installed gem. A fix that branches on "if X" means the finding is not
+  ready.
 - Propose the smallest fix that works. Prefer fixes that delete code. Never
   add layers, frameworks, or config the problem does not need.
 - A fix is a code change (tests count) or a deletion. If the only remedy is a
@@ -84,7 +88,8 @@ End with:
 
 - `Verdict: Ship.` or `Verdict: fix 1 and 3 first.`
 - `Lean: -<N> lines possible.` when lean findings exist.
-- `Not checked:` one line, if something mattered and you could not check it.
+- `Not checked:` one line, only for something that mattered, that no tool
+  available to you could check, and that changes no finding.
 
 Nothing found: `What this change does:`, then `Looks good. Ship.` and one
 line on what you checked.
