@@ -1,80 +1,77 @@
 ---
 name: execute
-description: Implement an approved design with one fresh worker per PR, behavior tests first, and deslop in separate commits. Use for "execute the design" or "build the PR stack". Pause after the full stack is created.
+description: Build the approved design's PR stack with one fresh worker per PR, tests first, and a draft PR each. Use for "execute the design" or "build the PR stack". Verification, deslop, and review stay separate.
 disable-model-invocation: true
 ---
 
 # Execute
 
-Coordinate one fresh implementation worker per PR in the approved design.
-Build the complete stack without approval pauses between PRs, then hand it to
-the human. Material drift interrupts execution before the affected work proceeds.
+Turn the approved design into a stack of draft PRs. One fresh worker builds
+each PR in order, tests first. This skill opens the PRs and reports their
+links.
 
-## 1. Check the contract
+## 1. Read the PR plan
 
-Run `accio topic current --path` and read `investigation.md`, `design.md`,
-`decisions.md`, and `feasibility/` in that folder. If Accio reports no topic,
-stop and tell the user to run investigate first. The PR plan in `design.md` is
-the contract.
+Run `accio topic current --path` and read `design.md` in that folder. If Accio
+reports no topic or the file is missing, stop and tell the human to run
+`design` first. Read nothing else. The orchestrator makes no implementation
+decisions, so it needs no other context.
 
-Before resuming, compare that PR plan with existing branches and open PRs.
-Do not recreate a completed PR or overwrite an active worker's changes.
+Take the PR plan from the design: PR IDs, branches, bases, and order. For each
+branch, run `gh pr list --head <branch> --json url,headRefOid`. A branch with
+an open PR is complete. Record its head and skip it. Start the first worker at
+the first branch without one. Never recreate or force-push an existing PR.
 
-## 2. Launch a PR worker
+## 2. Launch one worker per PR
 
-Read [the PR worker contract](references/pr-worker.md) and supply its inputs.
-Supply a distinct evidence directory per PR using
-[the verification protocol](../_shared/verification.md). The verifier discovers
-the app skill at verification time. Launch a fresh agent with no inherited
-conversation per PR.
+Launch a fresh agent with no inherited conversation, on the session model.
+Give it [the PR worker contract](references/pr-worker.md) as its task, with
+its PR ID, branch, base, and the predecessor's head from the previous handoff
+or the skipped PR. The first PR has no predecessor.
 
-Use the session model unless the user or orchestrator specifies another.
-Run workers sequentially in dependency order, with one application writer.
-Fresh context does not require a new worktree. Reconcile a worker's branch and
-PR before another writer starts.
+Run workers one at a time, in dependency order. Never edit the checkout
+yourself. If the harness cannot launch an agent, report that and stop. Do not
+build the stack in this conversation.
 
-A missing delegation capability is a reported blocker; do not silently build
-the whole stack in the coordinator.
+## 3. Check the handoff
 
-## 3. Handle the handoff
+When the worker returns, run one check:
 
-Verify the worker's branch, base, commits, PR URL, and reported checks against
-the handoff it returned. When it reports deviations, append them to
-`decisions.md` and commit with `accio commit -m "record <pr-id>"`. Pass the
-verified handoff to workers that depend on it.
+```bash
+gh pr view <url> --json isDraft,baseRefName,headRefOid
+```
 
-Check that the worker followed the contract's sequence: TDD, committed green
-implementation, separate deslop cleanup, fresh verification of the final
-revision, then PR creation with inspected evidence. Never launch code
-simplification automatically.
+The PR must be a draft on the assigned base, at the head the handoff reports.
+If it is, print one line and launch the next worker:
 
-Material drift is a changed acceptance criterion, public contract, dependency,
-storage or migration plan, PR boundary, or a disproven design assumption.
-Return it to the human with its consequence and options. A failed required
-check or unavailable verification blocks claiming that PR complete. Report the
-gap without manufacturing evidence.
+```
+pr-2 opened: <url>, tests pass
+```
 
-## 4. Verify the stack
+If the check fails or the handoff reports a blocker, stop the stack. Do not
+retry or launch a replacement worker. A blocker is a related test that cannot
+pass, or material drift: a changed acceptance criterion, public contract, PR
+boundary, or a design assumption the code disproves. The worker records minor
+deviations in `decisions.md` itself, and work continues.
 
-After every planned PR exists, compare the stack against the design's scopes
-and requirement IDs. Check dependency bases, current heads, verification
-results, and separate cleanup commits. A child PR's diff must not include its
-parent's feature as new work.
+## 4. Report the stack
 
-Reuse passing checks for unchanged revisions. Run affected checks again after
-repairs. Do not call the stack ready while a required check is failing or a
-planned capability is missing.
+After the last worker, print the PRs in order with their status:
 
-## 5. Pause for the human
+```
+pr-1: <url>, tests pass
+pr-2: <url>, tests pass
+pr-3: not started, blocked by pr-2
+```
 
-Use `../wait-what/SKILL.md` to report PR links in order, delivered behavior,
-verification, deviations, test edits, and cleanup commit links or deslop no-ops.
-
-Pause here, even under orchestrate. Do not start review, simplification, merge,
-or deployment until the human continues. The pause happens after the complete
-stack, unless drift or a blocker required an earlier stop.
+Explain a blocker in ASD-STE100 Simplified Technical English: short sentences,
+one idea each, with a named actor. For example: "The worker ran the refund
+tests. Two tests fail. The design says `Refund#amount` accepts nil. The model
+rejects nil." Then stop. Verification, cleanup, review, and marking a PR
+ready are the human's next steps.
 
 ## When not to use
 
-Use `design` when the implementation contract lacks approval.
-Use `review-fix` for approved fixes to review findings.
+- `design` when the implementation contract is not approved.
+- `verify` and `deslop` to prove and clean a draft before marking it ready.
+- `review-fix` for approved fixes to review findings.

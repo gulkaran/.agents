@@ -1,6 +1,6 @@
 ---
 name: deslop
-description: Strip a branch of everything that exists for the agent rather than the repo before it becomes a PR: local-testing docs, committed screenshots and previews, probe scripts, debug output, change-narrating comments, and reflexive code patterns. Use after execute's verification passes and before opening-a-pr, or when asked to "deslop" or "clean this branch".
+description: Strip a branch of everything that exists for the agent rather than the repo before it becomes a PR: local-testing docs, committed screenshots and previews, probe scripts, debug output, change-narrating comments, and reflexive code patterns. Use before a draft PR is marked ready for review, after `verify` passes, or when asked to "deslop" or "clean this branch".
 ---
 
 # Deslop
@@ -55,7 +55,7 @@ Start from committed, passing implementation. Run the tests the branch touches a
 chore: remove local-testing docs and verification artifacts
 ```
 
-Never amend, fixup, or squash cleanup into implementation during PR preparation or review. If nothing changes, report a no-op without an empty commit. Include the cleanup commit in the PR handoff.
+Never amend, fixup, or squash cleanup into implementation during PR preparation or review. If nothing changes, report a no-op without an empty commit.
 
 Report in one to three sentences: what was deleted, what stayed because a rule required it, and any behavior change.
 

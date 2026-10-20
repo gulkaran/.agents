@@ -2,8 +2,8 @@
 
 ## Running verification
 
-Execute, verify, browser use, and generated app verification skills do not ask
-whether a task is work or personal. That question applies only to creating or
+Verify, browser use, and generated app verification skills do not ask whether
+a task is work or personal. That question applies only to creating or
 maintaining a reusable verification skill, as described below.
 
 At verification time, use an app skill explicitly supplied by the caller or

@@ -1,6 +1,6 @@
 interface:
   display_name: "Execute"
-  short_description: "Fresh worker per PR, then pause after the full stack"
-  default_prompt: "Use $execute to build the approved PR stack with tests first and separate deslop commits, then pause."
+  short_description: "Fresh worker per PR, draft PRs, then the links"
+  default_prompt: "Use $execute to build the approved PR stack as draft PRs with tests first, then report the links."
 policy:
   allow_implicit_invocation: false

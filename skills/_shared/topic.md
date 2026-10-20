@@ -16,9 +16,7 @@ chooses the approach, and approves the design before implementation starts.
   feasibility/      # retained experiments, including disproven assumptions
   verification/     # screenshots, diagnostics, and rerun notes
   decisions.md      # append-only human decisions and implementation deviations
-  execution/        # one handoff per PR
   review/           # one round file per reviewed PR revision
-  orchestration-summary.md # phase reports when orchestrate is used
 ```
 
 Read `config.md` and any `config.local.md` override for the vault location.
@@ -51,8 +49,7 @@ Record that confirmation against its checksum and set phase `investigating`.
 This is the interview's confirmation, not an additional approval.
 For standalone `grill-me`, this phase marks readiness for investigation, not
 permission to begin it. Stop after the brief handoff; the user invokes
-`investigate` in a new agent. An explicitly invoked `orchestrate` workflow
-manages its own phase handoffs.
+`investigate` in a new agent.
 
 ## Approvals and transitions
 
@@ -61,7 +58,7 @@ manages its own phase handoffs.
 | grilling | Idea and existing context | Confirm the saved brief | investigating |
 | investigating | Confirmed brief | Choose the saved approach and scope | designing |
 | designing | Chosen approach | Approve the saved technical design | design-approved |
-| executing | All three current approvals | None between PRs; stop for material drift | in-review after the whole stack exists |
+| executing | All three current approvals | None between PRs; stop for material drift | in-review when the human marks the drafts ready |
 
 Save the draft and present it before requesting its decision. Use
 `../wait-what/SKILL.md` for checkpoint explanations. Clear approval in chat
@@ -82,8 +79,8 @@ approval. Design changes invalidate design approval. Supporting research and
 execution evidence do not invalidate unchanged documents by themselves.
 
 A human can explicitly waive a checkpoint for a particular run. Record the
-waiver and its scope as a waiver, never as approval. "Orchestrate", "continue",
-or an old delegated approval does not waive a checkpoint.
+waiver and its scope as a waiver, never as approval. "Continue" or an old
+delegated approval does not waive a checkpoint.
 
 ### Existing topics
 
@@ -116,18 +113,12 @@ prs:
     branch: <branch>
     base: <base branch>
     depends_on: []
-    status: planned # implementing | open | blocked
+    status: planned # open | blocked | merged
     url: <once open>
-    head: <verified commit>
-    cleanup_commits: []
-    handoff: execution/pr-1.md
-execution:
-  active_pr: <PR ID while implementing>
-  active_agent: <worker ID while running>
+    head: <commit>
 ```
 
-Omit records until they exist. PR IDs come from the approved design. Record
-a deslop no-op in the handoff, rather than making an empty cleanup commit.
+Omit records until they exist. PR IDs come from the approved design.
 Append one log line per session or transition. A PR stack being ready does
 not mean it has merged. Set `done` only on the human's confirmation.
 
@@ -156,16 +147,15 @@ reason. Stop affected work for changed acceptance criteria, public contracts,
 dependencies, security, storage or migration plans, workers or jobs, rollout
 requirements, PR boundaries, or a disproven design assumption. Present the
 consequence and options; wait for the human. A worker reports drift to its
-coordinator and returns without deciding on the human's behalf.
+orchestrator and returns without deciding on the human's behalf.
 
 ## Ownership and commits
 
-The coordinator owns topic state, approvals, and vault commits. Workers write
-assigned artifacts and return handoffs without committing the vault. PR workers
-own their application commits. Standalone phase sessions act as coordinator.
-When a delegated phase reaches a human decision, it returns the draft and
-questions. The coordinator performs that phase's presentation and approval
-steps. Delegation changes who presents the decision, never who makes it.
+The session that runs a phase owns topic state, approvals, and vault commits.
+PR workers own their application commits and commit their own deviations to
+`decisions.md` with `accio commit`. A worker that reaches a human decision
+returns it to the session that launched it. Delegation changes who presents
+the decision, never who makes it.
 
 Find the vault Git root with `git -C <vault_path> rev-parse --show-toplevel`.
 Commit meaningful drafts, revisions, evidence, decisions, and state before
@@ -182,9 +172,9 @@ Application red, green, cleanup, and any human-requested simplification commits
 remain separate throughout PR preparation and review. Never amend, squash, or
 fixup cleanup into implementation. No empty cleanup commits and no AI attribution.
 
-## Orchestration
+## Execution
 
-`../orchestrate/SKILL.md` coordinates the same approvals and drift policy.
-It presents reports in chat and saves them in the vault. It cannot approve
-for the human. Execution uses one fresh worker per PR and pauses after the
-full stack exists. Review starts only after the human continues from that pause.
+`../execute/SKILL.md` builds the approved PR stack as draft PRs with one fresh
+worker per PR and reports their links. It stops for material drift and cannot
+approve for the human. The human runs `verify` and `deslop`, marks each PR
+ready, and then asks for `pr-review`.
