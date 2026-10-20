@@ -32,5 +32,26 @@ pub fn run(ctx: &Context, message: &str) -> Result<()> {
     let subject = format!("docs({}): {message}", topic.slug);
     git::run(dir, &["commit", "-q", "-m", &subject, "--", pathspec])?;
     println!("{}", git::run(dir, &["log", "-1", "--format=%h %s"])?);
+    // `--relative` run from the topic folder prints paths under it, so each
+    // line reads `<status>\t<path inside the topic>`.
+    let changes = git::run(
+        dir,
+        &[
+            "-c",
+            "core.quotePath=false",
+            "show",
+            "--relative",
+            "--no-renames",
+            "--name-status",
+            "--format=",
+            "HEAD",
+        ],
+    )?;
+    for change in changes.lines().filter(|line| !line.is_empty()) {
+        let (status, path) = change
+            .split_once('\t')
+            .ok_or_else(|| anyhow!("git show printed an unexpected line: {change}"))?;
+        println!("{status} {path}");
+    }
     Ok(())
 }

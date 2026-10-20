@@ -48,8 +48,9 @@ fn commit_records_exactly_the_topic_folder_and_leaves_other_work_alone() {
         .args(["commit", "-m", "save the research"])
         .assert()
         .success()
-        .stdout(predicate::str::ends_with(
-            " docs(accio-cli): save the research\n",
+        .stdout(format!(
+            "{} docs(accio-cli): save the research\nM brief.md\nD design.md\nA research/new.md\n",
+            short_head(&h, h.vault.path())
         ));
 
     let vault = h.vault.path();
@@ -91,7 +92,7 @@ fn commit_prints_the_short_sha_and_subject_and_passes_the_message_through() {
         .assert()
         .success()
         .stdout(format!(
-            "{} docs(accio-cli): {message}\n",
+            "{} docs(accio-cli): {message}\nM brief.md\n",
             short_head(&h, h.vault.path())
         ));
 
@@ -100,6 +101,22 @@ fn commit_prints_the_short_sha_and_subject_and_passes_the_message_through() {
             .trim_end(),
         format!("docs(accio-cli): {message}")
     );
+}
+
+#[test]
+fn commit_lists_a_rename_as_a_delete_and_an_add() {
+    let h = Harness::new();
+    let topic = two_committed_topics(&h);
+    fs::rename(topic.join("brief.md"), topic.join("notes.md")).unwrap();
+
+    h.accio_in(h.work.path())
+        .args(["commit", "-m", "rename the brief"])
+        .assert()
+        .success()
+        .stdout(format!(
+            "{} docs(accio-cli): rename the brief\nD brief.md\nA notes.md\n",
+            short_head(&h, h.vault.path())
+        ));
 }
 
 #[test]
@@ -154,7 +171,10 @@ fn commit_makes_the_first_commit_of_an_unborn_vault() {
         .args(["commit", "-m", "first"])
         .assert()
         .success()
-        .stdout(format!("{} docs(first): first\n", short_head(&h, &fresh)));
+        .stdout(format!(
+            "{} docs(first): first\nA brief.md\n",
+            short_head(&h, &fresh)
+        ));
 
     assert_eq!(
         h.git(&fresh, &["log", "--format=%s"]).trim_end(),

@@ -41,7 +41,8 @@ pub enum Command {
         next: bool,
     },
     /// Commit the current topic folder in the vault repository as
-    /// docs(<slug>): <message>, leaving other staged work staged.
+    /// docs(<slug>): <message>, leaving other staged work staged, and print
+    /// the commit followed by each file it recorded.
     Commit {
         /// Text after `docs(<slug>): ` in the commit subject.
         #[arg(short, long)]
