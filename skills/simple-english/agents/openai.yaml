@@ -1,0 +1,4 @@
+interface:
+  display_name: "Simple English"
+  short_description: "Uses simple language for responses"
+  default_prompt: "Use $simple-english for all responses"
