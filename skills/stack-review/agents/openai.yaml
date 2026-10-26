@@ -1,0 +1,6 @@
+interface:
+  display_name: "Stack review"
+  short_description: "One pr-review worker per PR, one report for the stack"
+  default_prompt: "Use $stack-review to review this stack of PRs, one pr-review worker per PR, and give one report."
+policy:
+  allow_implicit_invocation: true

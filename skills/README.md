@@ -14,6 +14,7 @@ and approve the design before the agent implements it.
 | [execute](execute/SKILL.md)         | Builds the stack as draft PRs with one fresh worker per PR, then reports the links.     |
 | [pr-review](pr-review/SKILL.md)     | Reviews a PR when I ask, after I verify and clean the draft.                            |
 | [review-fix](review-fix/SKILL.md)   | Verifies findings and proposes fixes for approval.                                      |
+| [stack-review](stack-review/SKILL.md) | Reviews a stack with one pr-review worker per PR and gives one report.                |
 
 After execute opens the drafts, I run `verify` and `deslop`, mark each PR
 ready, and ask for review. Material drift stops implementation for a decision.

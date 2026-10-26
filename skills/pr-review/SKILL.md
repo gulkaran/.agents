@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: Review a PR for bugs, risk, missing tests, performance, and complexity. Use for "review this PR", "review my PR", or "review the stack". A blind code review precedes checking your PR against its approved design. Changes no code.
+description: Review a PR for bugs, risk, missing tests, performance, and complexity. Use for "review this PR" or "review my PR". A blind code review precedes checking your PR against its approved design. Pass --stateless to write no files. Changes no code.
 disable-model-invocation: true
 ---
 
@@ -14,8 +14,7 @@ independently. Analysis only; never edit code or tests.
 
 - Target: the PR number, URL, or branch the human names. Otherwise match the
   current branch to the PR plan in the topic's `design.md`. If several PRs
-  remain possible, ask which to review. An explicit stack review covers each
-  PR separately against its own base.
+  remain possible, ask which to review.
 - Record base, head, and whether uncommitted changes are included, so every
   finding has an unambiguous range.
 - Decide whose PR it is. Yours: run steps 2, 3, and 4. A coworker's: steps 2
@@ -25,6 +24,10 @@ independently. Analysis only; never edit code or tests.
 gh pr view <n> --json author --jq .author.login
 gh api user --jq .login
 ```
+
+- `--stateless`: write no files and run no `accio` command that writes. On
+  your PR, step 3 still reads the topic. If Accio reports no topic, skip
+  step 3.
 
 ## 2. Blind review
 
@@ -64,15 +67,17 @@ Read `~/.agents/skills/technical-writing/SKILL.md` immediately before reporting.
 Use the format in `references/blind-review.md`, with step 3 annotations on
 their findings.
 
-- Your PR: run `accio path review --next` and write the round at the printed
-  path: base and head, findings with annotations, verification, and what you
-  could not check. One reviewed revision per file. Never edit an earlier
+- Your PR without `--stateless`: run `accio path review --next` and write
+  the round at the printed path: base and head, findings with annotations,
+  verification, and what you could not check. One reviewed revision per file. Never edit an earlier
   round or carry its history forward. Commit with
   `accio commit -m "add review round"`. Recommend `review-fix` for actionable
   findings.
-- A coworker's PR: report in chat. Post nothing to GitHub unless asked.
+- A coworker's PR, or any PR with `--stateless`: report in chat. Post nothing
+  to GitHub unless asked.
 
 ## When not to use
 
+- Reviewing a stack of PRs together: `stack-review`.
 - Fixing findings: `review-fix`.
 - Simplifying working code without a review: `code-simplification`.
