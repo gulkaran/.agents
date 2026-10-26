@@ -43,7 +43,7 @@ its feature map, and any maintained helpers.
 
 | Context | Profile location | Evidence location |
 |---|---|---|
-| Personal | `<repo>/.agents/skills/verify-<app>/` | The resolved topic's `verification/` directory |
+| Personal | `<repo>/.agents/skills/verify-<app>/` | The directory `accio path verification` prints |
 | Work | `~/.agents/verification/work/<repo-key>/verify-<app>/` | `~/.agents/verification/work/<repo-key>/evidence/<run-id>/` |
 
 For work, the human may supply another external root for this run. Keep profiles
@@ -51,9 +51,9 @@ and evidence outside both the application repo and the synced skills repo.
 Do not copy them into the personal vault or create an application PR for them.
 The caller's general topic storage remains governed by its own workflow.
 
-For personal creation or maintenance without a topic, use the configured vault's
-`<project>/verification/<run-id>/`. Read `_shared/config.md` and its machine
-override to resolve the vault. Do not create topic approvals for a standalone run.
+For personal creation or maintenance without a topic, use
+`<vault>/projects/<project>/verification/<run-id>/`, where `accio vault path`
+prints `<vault>`. Do not create a topic for a standalone run.
 
 Create or maintain profiles only in the chosen location. If several match the
 target app, ask which one. Do not silently copy profiles between locations.

@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 This skill takes the current conversation context and codebase understanding and produces a spec. Do NOT interview the user; just synthesize what you already know.
 
-For the issue tracker and triage label vocabulary, read `~/.agents/skills/_shared/config.md` and follow the tracker recipes doc it names.
+For the issue tracker and triage label vocabulary, run `accio config get tracker` and follow `~/.agents/skills/_shared/trackers/<tracker>.md`.
 
 ## Process
 
